@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">MarvelComics</string>
+    <string name="filter_view_http_comics">http://gateway.marvel.com/v1/public/comics</string>
+    <string name="filter_view_comics">indiecampers</string>
+</resources>
