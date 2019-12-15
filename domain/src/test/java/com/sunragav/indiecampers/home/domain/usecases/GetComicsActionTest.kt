@@ -1,7 +1,7 @@
 package com.sunragav.indiecampers.home.domain.usecases
 
 import com.sunragav.indiecampers.home.domain.repositories.ComicsRepository
-import com.sunragav.indiecampers.home.presentation.utils.TestDataContainer
+import com.sunragav.indiecampers.home.domain.utils.TestDataContainer
 import io.mockk.every
 import io.mockk.mockk
 import io.reactivex.Observable
@@ -62,11 +62,5 @@ class GetComicsActionTest {
             .assertSubscribed()
             .assertError { it.message?.equals(errorMsg, false) ?: false }
             .assertNotComplete()
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun test_getComicsActionNoParams_error() {
-        val testObserver = getComicsAction.buildUseCase().test()
-        testObserver.assertSubscribed()
     }
 }

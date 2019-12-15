@@ -1,7 +1,7 @@
 package com.sunragav.indiecampers.home.domain.usecases
 
 import com.sunragav.indiecampers.home.domain.repositories.ComicsRepository
-import com.sunragav.indiecampers.home.presentation.utils.TestDataContainer
+import com.sunragav.indiecampers.home.domain.utils.TestDataContainer
 import io.reactivex.Completable
 import io.reactivex.schedulers.Schedulers
 import org.junit.Before

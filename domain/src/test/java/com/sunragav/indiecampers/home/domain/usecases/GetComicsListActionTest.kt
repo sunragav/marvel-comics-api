@@ -22,7 +22,8 @@ class GetComicsListActionTest {
     companion object {
         private val query = GetComicsListAction.Params(
             searchKey = "123",
-            flagged = false
+            flagged = false,
+            networkState = BehaviorRelay.create()
         )
         private const val ERROR = "Network Error occurred"
     }
@@ -43,11 +44,10 @@ class GetComicsListActionTest {
     }
 
     @Test
-    fun test_getComicsAction_Success() {
-        val networkState: BehaviorRelay<NetworkState> = BehaviorRelay.create()
+    fun test_getComicsListAction_Success() {
 
         val result =
-            GetComicsListAction.GetComicsListActionResult(mockk(), mockk(), networkState)
+            GetComicsListAction.GetComicsListActionResult(mockk(), mockk())
 
         Mockito.`when`(
             comicsRepository.getComicsList(
@@ -64,39 +64,13 @@ class GetComicsListActionTest {
             .assertComplete()
 
         verify(comicsRepository, times(1)).getComicsList(query)
-        networkState.accept(NetworkState.LOADED)
+        query.networkState.accept(NetworkState.LOADED)
         val networkStateObserver = TestObserver.create<NetworkState>()
-        networkState.subscribe(networkStateObserver)
+        query.networkState.subscribe(networkStateObserver)
         networkStateObserver.assertSubscribed()
         networkStateObserver.assertValue(NetworkState.LOADED)
 
     }
 
-    @Test
-    fun test_getComicsAction_Error() {
-        val networkState: BehaviorRelay<NetworkState> = BehaviorRelay.create()
-        networkState.accept(NetworkState.ERROR)
-        val result =
-            GetComicsListAction.GetComicsListActionResult(mockk(), mockk(), networkState)
-        Mockito.`when`(
-            comicsRepository.getComicsList(
-                query
-            )
-        ).thenReturn(result)
-
-        val testObserver = getComicsListAction.buildUseCase(
-            query
-        ).test()
-
-        testObserver.assertSubscribed()
-            .assertValue {
-                it.networkState == networkState
-            }
-            .assertComplete()
-        val networkStateObserver = TestObserver.create<NetworkState>()
-        networkState.subscribe(networkStateObserver)
-        networkStateObserver.assertSubscribed()
-        networkStateObserver.assertValue(NetworkState.ERROR)
-    }
 }
 

@@ -22,19 +22,25 @@ class GetComicsListAction @Inject constructor(
     backgroundScheduler,
     foregroundScheduler
 ) {
+    companion object {
+        const val PAGE_SIZE = 20
+    }
 
 
-    data class Params(val searchKey: String? = null, val flagged: Boolean = false)
+    data class Params(
+        val searchKey: String = "",
+        val flagged: Boolean = false,
+        val limit: Int = PAGE_SIZE,
+        val networkState: BehaviorRelay<NetworkState>
+    )
 
-    override fun generateObservable(input: Params?): Observable<GetComicsListActionResult> {
+    override fun generateObservable(input: Params): Observable<GetComicsListActionResult> {
         return Observable.fromCallable { comicsRepository.getComicsList(input) }
-            .subscribeOn(backgroundScheduler)
     }
 
     class GetComicsListActionResult(
         val dataSource: DataSource.Factory<Int, ComicsEntity>,
-        val boundaryCallback: PagedList.BoundaryCallback<ComicsEntity>,
-        val networkState: BehaviorRelay<NetworkState>
+        val boundaryCallback: PagedList.BoundaryCallback<ComicsEntity>
     )
 
 

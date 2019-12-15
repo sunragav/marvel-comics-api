@@ -44,8 +44,7 @@ class HomeVMTest {
         val result =
             GetComicsListAction.GetComicsListActionResult(
                 mockk(),
-                mockk(),
-                domainNetworkState
+                mockk()
             )
 
         every {

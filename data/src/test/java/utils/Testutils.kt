@@ -1,4 +1,4 @@
-package com.sunragav.indiecampers.home.presentation.utils
+package com.sunragav.indiecampers.home.domain.utils
 
 import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
 

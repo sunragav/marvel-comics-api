@@ -16,11 +16,7 @@ class GetComicsAction @Inject constructor(
     @Foreground foregroundScheduler: Scheduler
 ) : ObservableUseCase<ComicsEntity, String>(backgroundScheduler, foregroundScheduler) {
 
-    override fun generateObservable(input: String?): Observable<ComicsEntity> {
-        if (input == null) {
-            throw IllegalArgumentException("Comics identifier can't be null")
-        }
+    override fun generateObservable(input: String): Observable<ComicsEntity> {
         return comicsRepository.getComics(input)
     }
-
 }

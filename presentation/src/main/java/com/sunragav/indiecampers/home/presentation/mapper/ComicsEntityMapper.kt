@@ -2,9 +2,11 @@ package com.sunragav.indiecampers.home.presentation.mapper
 
 import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
 import com.sunragav.indiecampers.home.presentation.models.Comics
+import com.sunragav.indiecampers.utils.Mapper
 import javax.inject.Inject
 
-class ComicsEntityMapper @Inject constructor() : Mapper<ComicsEntity, Comics> {
+class ComicsEntityMapper @Inject constructor() :
+    Mapper<ComicsEntity, Comics> {
 
     override fun from(model: Comics): ComicsEntity {
         return ComicsEntity(

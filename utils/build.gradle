@@ -2,8 +2,7 @@ apply plugin: 'kotlin'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(':utils')
-    implementation project(':domain')
+
     implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
     implementation "com.jakewharton.rxrelay2:rxrelay:$rxRelayVersion"
     implementation "javax.inject:javax.inject:$javaxInjectVersion"
