@@ -11,6 +11,7 @@ import com.sunragav.indiecampers.localdata.mapper.ComicsFavoritesMapper
 import com.sunragav.indiecampers.localdata.mapper.ComicsLocalMapper
 import io.reactivex.Completable
 import io.reactivex.Observable
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
 class LocalDataSourceImpl @Inject constructor(
@@ -19,14 +20,18 @@ class LocalDataSourceImpl @Inject constructor(
     private val comicsListDAO: ComicsListDAO,
     private val favoriteComicsDAO: FavoriteComicsDAO
 ) : LocalRepository {
-    override fun insert(comicsEntityList: List<ComicsEntity>, callBack: Callback?): Completable {
+    override fun insert(
+        comicsEntityList: List<ComicsEntity>,
+        callBack: Callback?,
+        errorCallback: Callback?
+    ): Completable {
         return Completable.fromCallable {
             comicsListDAO.insert(comicsEntityList.map { comicsLocalMapper.to(it) })
-            callBack?.invoke()
+                .subscribe({ callBack?.invoke() }, { errorCallback?.invoke() })
         }
     }
 
-    override fun getComicsList(param: GetComicsListAction.Params): DataSource.Factory<Int, ComicsEntity> {
+    override fun getComicsListDatasourceFactory(param: GetComicsListAction.Params): DataSource.Factory<Int, ComicsEntity> {
         return (if (param.searchKey.isNotBlank())
             comicsListDAO.getComicsList(
                 "%${param.searchKey.replace(' ', '%')}%",
@@ -40,21 +45,38 @@ class LocalDataSourceImpl @Inject constructor(
         return comicsListDAO.getComicsById(uniqueIdentifier).map { comicsLocalMapper.from(it) }
     }
 
-    override fun getFavoriteComics(limit: Int): DataSource.Factory<Int, ComicsEntity> {
+    override fun getFavoriteComicsListDatasourceFactory(limit: Int): DataSource.Factory<Int, ComicsEntity> {
         return favoriteComicsDAO.getFavoriteComicsList(limit).map { comicsFavoritesMapper.from(it) }
     }
 
-    override fun update(comicsEntity: ComicsEntity): Completable {
+    override fun update(
+        comicsEntity: ComicsEntity,
+        callBack: Callback?,
+        errorCallback: Callback?
+    ): Completable {
         return Completable.fromCallable {
+            val err = AtomicBoolean(false)
+
             val comicsLocal = comicsLocalMapper.to(comicsEntity)
             with(comicsLocal) {
                 if (flagged) {
                     favoriteComicsDAO.insert(listOf(comicsFavoritesMapper.to(comicsEntity)))
+                        .subscribe({}) { err.getAndSet(true) }
+
                 } else {
                     favoriteComicsDAO.deleteFavorite(id)
+                        .subscribe({}) { err.getAndSet(true) }
                 }
-                comicsListDAO.update(this)
+                if (!err.get())
+                    comicsListDAO.update(this)
+                        .subscribe({}) { err.getAndSet(true) }
             }
+            if (!err.get())
+                callBack?.invoke()
+            else
+                errorCallback?.invoke()
+
+
         }
     }
 

@@ -1,13 +1,13 @@
 package com.sunragav.indiecampers.home.data.repository
 
 import com.sunragav.indiecampers.data.repository.ComicsDataRepository
-import com.sunragav.indiecampers.home.domain.utils.TestDataContainer.Companion.getComics
 import io.mockk.every
 import io.mockk.mockk
 import io.reactivex.Completable
 import io.reactivex.Observable
 import org.junit.Before
 import org.junit.Test
+import utils.TestDataContainer.Companion.getComics
 
 class ComicsDataRepositoryTest {
     companion object {

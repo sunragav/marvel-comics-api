@@ -25,27 +25,34 @@ android {
 }
 
 dependencies {
+
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation project(':data')
     implementation project(':domain')
     implementation project(':utils')
 
-    implementation "androidx.arch.core:core-runtime:$archCoreVersion"
+    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
     implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
-    implementation "androidx.room:room-runtime:$roomVersion"
-    implementation "androidx.room:room-rxjava2:$roomVersion"
-    kapt "androidx.room:room-compiler:$roomVersion"
-    implementation "androidx.paging:paging-runtime:$archPagingVersion"
+    implementation "com.jakewharton.rxrelay2:rxrelay:$rxRelayVersion"
 
     implementation "javax.inject:javax.inject:$javaxInjectVersion"
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
+    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycleVersion"
+    kapt "androidx.lifecycle:lifecycle-compiler:$lifecycleVersion"
+    // ReactiveStreams support for LiveData
+    implementation "androidx.lifecycle:lifecycle-reactivestreams-ktx:$lifecycleVersion"
+
+    implementation "androidx.paging:paging-runtime:$archPagingVersion"
+
+    implementation "androidx.room:room-runtime:$roomVersion"
+
     testImplementation "io.mockk:mockk:$mockkVersion"
+
     testImplementation "junit:junit:$junitVersion"
+    testImplementation "androidx.arch.core:core-testing:$archCoreVersion"
     testImplementation "org.mockito:mockito-core:$mockitoVersion"
     androidTestImplementation "androidx.test:runner:$testRunnerVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
-    androidTestImplementation "androidx.arch.core:core-testing:$archCoreVersion"
 }

@@ -29,7 +29,7 @@ class ComicsDataRepository @Inject constructor(
 
     override fun getComicsList(query: GetComicsListAction.Params): GetComicsListActionResult {
         return GetComicsListActionResult(
-            localRepository.getComicsList(query),
+            localRepository.getComicsListDatasourceFactory(query),
             RepoBoundaryCallback(query)
         )
     }

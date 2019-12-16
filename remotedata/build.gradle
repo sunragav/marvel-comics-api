@@ -1,8 +1,33 @@
-apply plugin: 'java-library'
+plugins {
+    id 'java'
+    id 'com.github.gmazzo.buildconfig' version "1.6.2"
+}
+apply plugin: 'kotlin'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation project(':data')
+    implementation project(':domain')
+    implementation project(':utils')
+
+    implementation "com.squareup.retrofit2:retrofit:$retrofit2Version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit2Version"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofit2Version"
+
+    implementation "javax.inject:javax.inject:$javaxInjectVersion"
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+    testImplementation "io.mockk:mockk:$mockkVersion"
+    testImplementation "junit:junit:$junitVersion"
+    testImplementation "org.mockito:mockito-core:$mockitoVersion"
+
 }
 
-sourceCompatibility = "7"
-targetCompatibility = "7"
+buildConfig {
+    buildConfigField('String', 'APP_NAME', "\"${project.name}\"")
+    buildConfigField("String", "PUBLIC_KEY", "\"${marvelPublicKey}\"")
+    buildConfigField("String", "PRIVATE_KEY", "\"${marvelPrivateKey}\"")
+    buildConfigField("String", "BASE_URL", "\"${baseUrl}\"")
+}
