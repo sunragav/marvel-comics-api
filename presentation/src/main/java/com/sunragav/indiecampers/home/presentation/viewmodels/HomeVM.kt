@@ -24,7 +24,7 @@ open class HomeVM @Inject internal constructor(
     private val updateComicsAction: UpdateComicsAction
 ) : ViewModel() {
     companion object {
-        const val LIMIT = 40
+        private const val LIMIT = 40
     }
 
     private val filterRequestLiveData = MutableLiveData<Params>()
@@ -40,8 +40,15 @@ open class HomeVM @Inject internal constructor(
             getComicsListAction.buildUseCase(input).blockingFirst()
         }
 
+    private val pagingConfig = PagedList.Config.Builder()
+        .setEnablePlaceholders(false)
+        .setInitialLoadSizeHint(LIMIT)
+        .setPageSize(LIMIT)
+        .build()
+
+
     val comicsListSource: LiveData<PagedList<ComicsEntity>> = Transformations.switchMap(result) {
-        LivePagedListBuilder(it.dataSource, LIMIT)
+        LivePagedListBuilder(it.dataSource, pagingConfig)
             .setBoundaryCallback(it.boundaryCallback)
             .build()
     }

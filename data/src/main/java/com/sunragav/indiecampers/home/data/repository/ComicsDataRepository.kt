@@ -19,9 +19,9 @@ class ComicsDataRepository @Inject constructor(
     val remoteRepository: RemoteRepository
 ) : ComicsRepository {
 
-    override fun getComics(uniqueIdentifier: String): Observable<ComicsEntity> {
-        val localObservable = localRepository.getComicsById(uniqueIdentifier)
-        val remoteObservable = remoteRepository.getComicsById(uniqueIdentifier).doOnNext {
+    override fun getComics(query: String): Observable<ComicsEntity> {
+        val localObservable = localRepository.getComicsById(query)
+        val remoteObservable = remoteRepository.getComicsById(query).doOnNext {
             updateComics(it)
         }
         return Observable.concat(localObservable, remoteObservable).firstOrError().toObservable()
@@ -36,7 +36,7 @@ class ComicsDataRepository @Inject constructor(
 
 
     override fun updateComics(comicsEntity: ComicsEntity): Completable {
-        return localRepository.insert(listOf(comicsEntity))
+        return localRepository.update(comicsEntity)
     }
 
     inner class RepoBoundaryCallback(

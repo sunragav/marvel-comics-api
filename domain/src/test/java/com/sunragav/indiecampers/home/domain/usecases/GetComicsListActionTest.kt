@@ -64,6 +64,7 @@ class GetComicsListActionTest {
             .assertComplete()
 
         verify(comicsRepository, times(1)).getComicsList(query)
+
         query.networkState.accept(NetworkState.LOADED)
         val networkStateObserver = TestObserver.create<NetworkState>()
         query.networkState.subscribe(networkStateObserver)

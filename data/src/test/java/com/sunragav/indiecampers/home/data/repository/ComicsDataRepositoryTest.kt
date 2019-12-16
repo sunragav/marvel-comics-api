@@ -85,7 +85,7 @@ class ComicsDataRepositoryTest {
     fun test_updateComics_success() {
 
         every {
-            localRepository.insert(any())
+            localRepository.update(any())
         }.returns(Completable.complete())
 
         val comicsObservable = comicsDataRepository.updateComics(mockk())
@@ -99,7 +99,7 @@ class ComicsDataRepositoryTest {
     @Test
     fun test_updateComics_error() {
         every {
-            localRepository.insert(any())
+            localRepository.update(any())
         } returns (Completable.error(Throwable(ERROR)))
         val comicsObservable = comicsDataRepository.updateComics(mockk())
 

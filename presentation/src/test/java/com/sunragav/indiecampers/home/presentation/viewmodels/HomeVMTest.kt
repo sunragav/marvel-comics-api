@@ -5,11 +5,13 @@ import com.jakewharton.rxrelay2.BehaviorRelay
 import com.sunragav.indiecampers.home.domain.entities.NetworkState
 import com.sunragav.indiecampers.home.domain.repositories.ComicsRepository
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction
+import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction.GetComicsListActionResult
 import com.sunragav.indiecampers.home.domain.usecases.UpdateComicsAction
 import com.sunragav.indiecampers.home.presentation.mapper.ComicsEntityMapper
+import com.sunragav.indiecampers.home.presentation.utils.PagingDataSourceUtil
+import com.sunragav.indiecampers.home.presentation.utils.TestDataContainer
 import io.mockk.every
 import io.mockk.mockk
-import io.reactivex.observers.TestObserver
 import io.reactivex.schedulers.Schedulers
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
@@ -42,7 +44,7 @@ class HomeVMTest {
         )
 
         val result =
-            GetComicsListAction.GetComicsListActionResult(
+            GetComicsListActionResult(
                 mockk(),
                 mockk()
             )
@@ -56,25 +58,17 @@ class HomeVMTest {
     }
 
     @Test
-    fun test_NetworkState() {
-        val networkState = comicsListHomeVM.networkState
-        val networkStateObserver = TestObserver.create<NetworkState>()
-        networkState.subscribe(networkStateObserver)
-        networkStateObserver.assertSubscribed()
-        networkStateObserver.assertValue(NetworkState.EMPTY)
+    fun test_comicsList() {
+        val comicsList = TestDataContainer.getComicsList().map { comicsMapper.from(it) }
+        val ds = PagingDataSourceUtil.createMockDataSourceFactory(comicsList)
+        val actionResult = GetComicsListActionResult(ds, mockk())
+        every { comicsRepository.getComicsList(any()) } returns (actionResult)
 
-        val comicsListSource = comicsListHomeVM.comicsListSource
+        comicsListHomeVM.comicsListSource.observeForever { /*Do Nothing*/ }
 
-        comicsListSource.observeForever { /*Do Nothing*/ }
         comicsListHomeVM.search("112")
-        testNetWorkState(NetworkState.LOADING, networkState)
-        testNetWorkState(NetworkState.LOADED, networkState)
-        testNetWorkState(NetworkState.ERROR, networkState)
-    }
+        assertThat(comicsListHomeVM.comicsListSource.value?.snapshot(), equalTo(comicsList))
 
-    private fun testNetWorkState(state: NetworkState, relay: BehaviorRelay<NetworkState>) {
-        domainNetworkState.accept(state)
-        assertThat(state, equalTo(relay.value))
     }
 
     private fun getComicsListAction(): GetComicsListAction {
