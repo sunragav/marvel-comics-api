@@ -1,11 +1,9 @@
-package com.sunragav.indiecampers.data.repository
+package com.sunragav.indiecampers.home.data.repository
 
 import androidx.paging.PagedList
-import com.sunragav.indiecampers.home.data.repository.LocalRepository
-import com.sunragav.indiecampers.home.data.repository.RemoteRepository
 import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
 import com.sunragav.indiecampers.home.domain.entities.NetworkState
-import com.sunragav.indiecampers.home.domain.repositories.ComicsRepository
+import com.sunragav.indiecampers.home.domain.repositories.ComicsDataRepository
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction.GetComicsListActionResult
 import io.reactivex.Completable
@@ -14,10 +12,10 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ComicsDataRepository @Inject constructor(
+class ComicsDataRepositoryImpl @Inject constructor(
     val localRepository: LocalRepository,
     val remoteRepository: RemoteRepository
-) : ComicsRepository {
+) : ComicsDataRepository {
 
     override fun getComics(query: String): Observable<ComicsEntity> {
         val localObservable = localRepository.getComicsById(query)

@@ -6,7 +6,7 @@ import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction.GetCom
 import io.reactivex.Completable
 import io.reactivex.Observable
 
-interface ComicsRepository {
+interface ComicsDataRepository {
     fun getComics(query: String): Observable<ComicsEntity>
 
     fun getComicsList(

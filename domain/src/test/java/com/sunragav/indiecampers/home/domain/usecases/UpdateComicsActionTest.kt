@@ -1,6 +1,6 @@
 package com.sunragav.indiecampers.home.domain.usecases
 
-import com.sunragav.indiecampers.home.domain.repositories.ComicsRepository
+import com.sunragav.indiecampers.home.domain.repositories.ComicsDataRepository
 import com.sunragav.indiecampers.home.domain.utils.TestDataContainer
 import io.reactivex.Completable
 import io.reactivex.schedulers.Schedulers
@@ -17,13 +17,13 @@ class UpdateComicsActionTest {
     private lateinit var updateComicsAction: UpdateComicsAction
 
     @Mock
-    private lateinit var comicsRepository: ComicsRepository
+    private lateinit var comicsDataRepository: ComicsDataRepository
 
     @Before
     fun setup() {
         MockitoAnnotations.initMocks(this)
         updateComicsAction = UpdateComicsAction(
-            comicsRepository,
+            comicsDataRepository,
             Schedulers.trampoline(),
             Schedulers.trampoline()
         )
@@ -33,14 +33,14 @@ class UpdateComicsActionTest {
     fun test_updateComicsAction_success() {
         val comics = TestDataContainer.getComics()
 
-        Mockito.`when`(comicsRepository.updateComics(comics))
+        Mockito.`when`(comicsDataRepository.updateComics(comics))
             .thenReturn(Completable.complete())
 
         val testObserver = updateComicsAction.buildUseCase(
             comics
         ).test()
 
-        verify(comicsRepository, times(1))
+        verify(comicsDataRepository, times(1))
             .updateComics(comics)
 
         testObserver
@@ -53,13 +53,13 @@ class UpdateComicsActionTest {
         val comics = TestDataContainer.getComics()
         val errorMsg = "ERROR OCCURRED"
 
-        Mockito.`when`(comicsRepository.updateComics(comics))
+        Mockito.`when`(comicsDataRepository.updateComics(comics))
             .thenReturn(Completable.error(Throwable(errorMsg)))
 
         val testObserver = updateComicsAction
             .buildUseCase(comics).test()
 
-        verify(comicsRepository, times(1))
+        verify(comicsDataRepository, times(1))
             .updateComics(comics)
 
         testObserver

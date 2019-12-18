@@ -29,7 +29,7 @@ android {
 dependencies {
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    kapt "com.android.databinding:compiler:3.1.4"
+    kapt 'androidx.databinding:databinding-compiler:3.5.3'
     implementation project(':domain')
     implementation project(':utils')
 

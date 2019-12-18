@@ -2,7 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.sunragav.indiecampers.marvelcomics">
 
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
+        android:name=".application.MarvelComicsApplication"
         android:allowBackup="true"
         android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"

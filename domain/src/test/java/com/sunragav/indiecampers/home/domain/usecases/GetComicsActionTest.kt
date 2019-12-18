@@ -1,6 +1,6 @@
 package com.sunragav.indiecampers.home.domain.usecases
 
-import com.sunragav.indiecampers.home.domain.repositories.ComicsRepository
+import com.sunragav.indiecampers.home.domain.repositories.ComicsDataRepository
 import com.sunragav.indiecampers.home.domain.utils.TestDataContainer
 import io.mockk.every
 import io.mockk.mockk
@@ -19,12 +19,12 @@ class GetComicsActionTest {
     }
 
     private lateinit var getComicsAction: GetComicsAction
-    private val comicsRepository: ComicsRepository = mockk()
+    private val comicsDataRepository: ComicsDataRepository = mockk()
 
     @Before
     fun setup() {
         getComicsAction = GetComicsAction(
-            comicsRepository,
+            comicsDataRepository,
             Schedulers.trampoline(),
             Schedulers.trampoline()
         )
@@ -35,7 +35,7 @@ class GetComicsActionTest {
 
         val comics = TestDataContainer.getComics()
 
-        every { comicsRepository.getComics(searchKey) }
+        every { comicsDataRepository.getComics(searchKey) }
             .returns(Observable.just(comics))
 
         val testObserver = getComicsAction.buildUseCase(
@@ -51,7 +51,7 @@ class GetComicsActionTest {
     fun test_getComicsAction_error() {
         val errorMsg = "ERROR OCCURRED"
 
-        every { comicsRepository.getComics(searchKey) }
+        every { comicsDataRepository.getComics(searchKey) }
             .returns(Observable.error(Throwable(errorMsg)))
 
         val testObserver = getComicsAction.buildUseCase(

@@ -2,7 +2,7 @@ package com.sunragav.indiecampers.home.domain.usecases
 
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.sunragav.indiecampers.home.domain.entities.NetworkState
-import com.sunragav.indiecampers.home.domain.repositories.ComicsRepository
+import com.sunragav.indiecampers.home.domain.repositories.ComicsDataRepository
 import io.mockk.mockk
 import io.reactivex.observers.TestObserver
 import io.reactivex.schedulers.Schedulers
@@ -31,13 +31,13 @@ class GetComicsListActionTest {
     private lateinit var getComicsListAction: GetComicsListAction
 
     @Mock
-    lateinit var comicsRepository: ComicsRepository
+    lateinit var comicsDataRepository: ComicsDataRepository
 
     @Before
     fun setup() {
         MockitoAnnotations.initMocks(this)
         getComicsListAction = GetComicsListAction(
-            comicsRepository,
+            comicsDataRepository,
             Schedulers.trampoline(),
             Schedulers.trampoline()
         )
@@ -50,7 +50,7 @@ class GetComicsListActionTest {
             GetComicsListAction.GetComicsListActionResult(mockk(), mockk())
 
         Mockito.`when`(
-            comicsRepository.getComicsList(
+            comicsDataRepository.getComicsList(
                 query
             )
         ).thenReturn(result)
@@ -63,7 +63,7 @@ class GetComicsListActionTest {
             .assertValue { it == result }
             .assertComplete()
 
-        verify(comicsRepository, times(1)).getComicsList(query)
+        verify(comicsDataRepository, times(1)).getComicsList(query)
 
         query.networkState.accept(NetworkState.LOADED)
         val networkStateObserver = TestObserver.create<NetworkState>()

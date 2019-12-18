@@ -1,5 +1,6 @@
 package com.sunragav.indiecampers.feature_home.ui.views
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
@@ -21,15 +22,23 @@ import com.sunragav.indiecampers.feature_home.ui.mapper.ComicsUIEntityMapper
 import com.sunragav.indiecampers.feature_home.ui.recyclerview.adapters.ComicsPagedListAdapter
 import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
 import com.sunragav.indiecampers.home.domain.entities.NetworkState
+import com.sunragav.indiecampers.home.presentation.factory.ComicsViewModelFactory
 import com.sunragav.indiecampers.home.presentation.viewmodels.HomeVM
+import dagger.android.support.AndroidSupportInjection
 import io.reactivex.disposables.CompositeDisposable
+import javax.inject.Inject
 
 class ComicsListFeatureActivityFragment : Fragment() {
     private lateinit var binding: FragmentComicsListFeatureBinding
     private lateinit var viewModel: HomeVM
+    @Inject
+    lateinit var viewModelFactory: ComicsViewModelFactory
     private val disposable = CompositeDisposable()
     private lateinit var comicsListAdapter: ComicsPagedListAdapter
-
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        AndroidSupportInjection.inject(this)
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -48,7 +57,9 @@ class ComicsListFeatureActivityFragment : Fragment() {
 
 
 
-        activity?.let { viewModel = ViewModelProviders.of(it).get(HomeVM::class.java) }
+        activity?.let {
+            viewModel = ViewModelProviders.of(it, viewModelFactory).get(HomeVM::class.java)
+        }
 
         binding.viewModel = viewModel
 
@@ -78,6 +89,8 @@ class ComicsListFeatureActivityFragment : Fragment() {
                             .show()
                     }
                     NetworkState.EMPTY -> {
+                        Toast.makeText(activity, "\uD83D\uDE28 Wooops ${it.msg}", Toast.LENGTH_LONG)
+                            .show()
                     }
                 }
 
@@ -107,7 +120,7 @@ class ComicsListFeatureActivityFragment : Fragment() {
         }
     }
 
-    private fun updateRepoListFromInput() {
+    private fun updateComicsListFromInput() {
         binding.searchComics.text.trim().let {
             if (it.isNotEmpty()) {
                 binding.rvComicsList.scrollToPosition(0)
@@ -122,7 +135,7 @@ class ComicsListFeatureActivityFragment : Fragment() {
 
         binding.searchComics.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_GO) {
-                updateRepoListFromInput()
+                updateComicsListFromInput()
                 true
             } else {
                 false
@@ -130,7 +143,7 @@ class ComicsListFeatureActivityFragment : Fragment() {
         }
         binding.searchComics.setOnKeyListener { _, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
-                updateRepoListFromInput()
+                updateComicsListFromInput()
                 true
             } else {
                 false

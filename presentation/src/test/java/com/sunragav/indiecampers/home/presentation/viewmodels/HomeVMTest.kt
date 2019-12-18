@@ -3,7 +3,7 @@ package com.sunragav.indiecampers.home.presentation.viewmodels
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.sunragav.indiecampers.home.domain.entities.NetworkState
-import com.sunragav.indiecampers.home.domain.repositories.ComicsRepository
+import com.sunragav.indiecampers.home.domain.repositories.ComicsDataRepository
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction.GetComicsListActionResult
 import com.sunragav.indiecampers.home.domain.usecases.UpdateComicsAction
@@ -24,7 +24,7 @@ class HomeVMTest {
 
     @get:Rule
     val rule = InstantTaskExecutorRule()
-    private val comicsRepository: ComicsRepository = mockk()
+    private val comicsDataRepository: ComicsDataRepository = mockk()
 
     private lateinit var comicsListHomeVM: HomeVM
     private val comicsMapper = ComicsEntityMapper()
@@ -50,7 +50,7 @@ class HomeVMTest {
             )
 
         every {
-            comicsRepository.getComicsList(
+            comicsDataRepository.getComicsList(
                 any()
             )
         }.returns(result)
@@ -62,7 +62,7 @@ class HomeVMTest {
         val comicsList = TestDataContainer.getComicsList().map { comicsMapper.from(it) }
         val ds = PagingDataSourceUtil.createMockDataSourceFactory(comicsList)
         val actionResult = GetComicsListActionResult(ds, mockk())
-        every { comicsRepository.getComicsList(any()) } returns (actionResult)
+        every { comicsDataRepository.getComicsList(any()) } returns (actionResult)
 
         comicsListHomeVM.comicsListSource.observeForever { /*Do Nothing*/ }
 
@@ -73,7 +73,7 @@ class HomeVMTest {
 
     private fun getComicsListAction(): GetComicsListAction {
         return GetComicsListAction(
-            comicsRepository,
+            comicsDataRepository,
             Schedulers.trampoline(),
             Schedulers.trampoline()
         )
@@ -81,7 +81,7 @@ class HomeVMTest {
 
     private fun getUpdateComicsAction(): UpdateComicsAction {
         return UpdateComicsAction(
-            comicsRepository,
+            comicsDataRepository,
             Schedulers.trampoline(),
             Schedulers.trampoline()
         )

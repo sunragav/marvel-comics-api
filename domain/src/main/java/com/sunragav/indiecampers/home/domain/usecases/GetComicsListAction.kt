@@ -7,7 +7,7 @@ import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
 import com.sunragav.indiecampers.home.domain.entities.NetworkState
 import com.sunragav.indiecampers.home.domain.qualifiers.Background
 import com.sunragav.indiecampers.home.domain.qualifiers.Foreground
-import com.sunragav.indiecampers.home.domain.repositories.ComicsRepository
+import com.sunragav.indiecampers.home.domain.repositories.ComicsDataRepository
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction.GetComicsListActionResult
 import com.sunragav.indiecampers.home.domain.usecases.base.ObservableUseCase
 import io.reactivex.Observable
@@ -15,7 +15,7 @@ import io.reactivex.Scheduler
 import javax.inject.Inject
 
 class GetComicsListAction @Inject constructor(
-    private val comicsRepository: ComicsRepository,
+    private val comicsDataRepository: ComicsDataRepository,
     @Background backgroundScheduler: Scheduler,
     @Foreground foregroundScheduler: Scheduler
 ) : ObservableUseCase<GetComicsListActionResult, GetComicsListAction.Params>(
@@ -35,7 +35,7 @@ class GetComicsListAction @Inject constructor(
     )
 
     override fun generateObservable(input: Params): Observable<GetComicsListActionResult> {
-        return Observable.fromCallable { comicsRepository.getComicsList(input) }
+        return Observable.fromCallable { comicsDataRepository.getComicsList(input) }
     }
 
     class GetComicsListActionResult(

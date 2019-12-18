@@ -1,6 +1,5 @@
 package com.sunragav.indiecampers.home.data.repository
 
-import com.sunragav.indiecampers.data.repository.ComicsDataRepository
 import io.mockk.every
 import io.mockk.mockk
 import io.reactivex.Completable
@@ -9,13 +8,13 @@ import org.junit.Before
 import org.junit.Test
 import utils.TestDataContainer.Companion.getComics
 
-class ComicsDataRepositoryTest {
+class ComicsDataRepositoryImplTest {
     companion object {
         const val SEARCH_KEY = "123"
         const val ERROR = "Error msg"
     }
 
-    private lateinit var comicsDataRepository: ComicsDataRepository
+    private lateinit var comicsDataRepositoryImpl: ComicsDataRepositoryImpl
 
     private val localRepository: LocalRepository = mockk()
     private val remoteRepository: RemoteRepository = mockk()
@@ -23,7 +22,7 @@ class ComicsDataRepositoryTest {
 
     @Before
     fun setup() {
-        comicsDataRepository = ComicsDataRepository(localRepository, remoteRepository)
+        comicsDataRepositoryImpl = ComicsDataRepositoryImpl(localRepository, remoteRepository)
     }
 
     @Test
@@ -36,7 +35,7 @@ class ComicsDataRepositoryTest {
             remoteRepository.getComicsById(any())
         }.returns(Observable.just(comics))
 
-        val comicsObservable = comicsDataRepository.getComics(SEARCH_KEY)
+        val comicsObservable = comicsDataRepositoryImpl.getComics(SEARCH_KEY)
         val testObserver = comicsObservable.test()
         testObserver
             .assertSubscribed()
@@ -56,7 +55,7 @@ class ComicsDataRepositoryTest {
         every {
             remoteRepository.getComicsById(any())
         }.returns(Observable.just(comics))
-        val comicsObservable = comicsDataRepository.getComics(SEARCH_KEY)
+        val comicsObservable = comicsDataRepositoryImpl.getComics(SEARCH_KEY)
 
         var testObserver = comicsObservable.test()
         testObserver
@@ -74,7 +73,7 @@ class ComicsDataRepositoryTest {
             remoteRepository.getComicsById(any())
         } returns (Observable.error(Throwable(ERROR)))
 
-        testObserver = comicsDataRepository.getComics(SEARCH_KEY).test()
+        testObserver = comicsDataRepositoryImpl.getComics(SEARCH_KEY).test()
         testObserver
             .assertSubscribed()
             .assertNoErrors()
@@ -88,7 +87,7 @@ class ComicsDataRepositoryTest {
             localRepository.update(any())
         }.returns(Completable.complete())
 
-        val comicsObservable = comicsDataRepository.updateComics(mockk())
+        val comicsObservable = comicsDataRepositoryImpl.updateComics(mockk())
         val testObserver = comicsObservable.test()
         testObserver
             .assertSubscribed()
@@ -101,7 +100,7 @@ class ComicsDataRepositoryTest {
         every {
             localRepository.update(any())
         } returns (Completable.error(Throwable(ERROR)))
-        val comicsObservable = comicsDataRepository.updateComics(mockk())
+        val comicsObservable = comicsDataRepositoryImpl.updateComics(mockk())
 
         val testObserver = comicsObservable.test()
         testObserver
