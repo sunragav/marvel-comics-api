@@ -21,7 +21,7 @@ import org.junit.Test
 
 class NetworkDataSourceTest {
 
-    var comicsService: ComicsService = mockk()
+    private var comicsService: ComicsService = mockk()
     private val comicsRemoteMapper = ComicsRemoteMapper()
     private lateinit var networkDatasource: NetworkDataSource
     private val hashGenerator = HashGeneratorImpl()

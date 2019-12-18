@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">feature-home</string>
+    <string name="action_settings">Settings</string>
+    <string name="comics_image">Comics image should come here. Its a shame, you this text here.</string>
+
+    <string name="blank_fragment">Vacant ready to occupy!!!</string>
+    <string name="no_results">Vacant ready to occupy!!!</string>
+    <string name="title_activity_comics_list_feature">ComicsListFeatureActivity</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="search_hint">Some comics title</string>
 </resources>

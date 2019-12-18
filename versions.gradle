@@ -24,9 +24,6 @@ ext {
     // Custom UI
     circularImageViewVersion = "3.2.0"
 
-    // Image loading
-    glideVersion = "4.8.0"
-
     // testing
     junitVersion = "4.12"
     testRunnerVersion = "1.1.1"
@@ -45,5 +42,12 @@ ext {
     lifecycleVersion = "2.1.0"
     archPagingVersion = "2.1.0"
     navVersion = "2.1.0"
+
+    //Image Lib
+    picassoVersion = "2.5.2"
+
+    //Databinding
+    dataBindingCompilerVersion = "3.1.1"
+
 
 }

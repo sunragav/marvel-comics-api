@@ -1,6 +1,7 @@
 package com.sunragav.indiecampers.home.presentation.viewmodels
 
 
+import androidx.databinding.ObservableField
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -29,11 +30,13 @@ open class HomeVM @Inject internal constructor(
 
     private val filterRequestLiveData = MutableLiveData<Params>()
     var networkState: BehaviorRelay<NetworkState> = BehaviorRelay.create()
-
+    var currentComics = MutableLiveData<ComicsEntity>()
 
     private var filterRequest = Params(limit = LIMIT, networkState = networkState)
     private val disposables = CompositeDisposable()
+    val isLoading = ObservableField<Boolean>()
 
+    fun lastSearchQuery() = filterRequestLiveData.value?.searchKey
 
     private val result =
         Transformations.map(filterRequestLiveData) { input ->
