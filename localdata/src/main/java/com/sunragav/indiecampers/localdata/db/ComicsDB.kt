@@ -8,10 +8,11 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.sunragav.indiecampers.localdata.models.ComicsLocal
 import com.sunragav.indiecampers.localdata.models.Favorites
+import com.sunragav.indiecampers.localdata.models.Request
 import com.sunragav.indiecampers.localdata.utils.StringConverter
 
 @Database(
-    entities = [ComicsLocal::class, Favorites::class],
+    entities = [ComicsLocal::class, Favorites::class, Request::class],
     version = 1,
     exportSchema = false
 )
@@ -40,8 +41,10 @@ abstract class ComicsDB : RoomDatabase() {
         }
     }
 
-    abstract fun getComisListDao(): ComicsListDAO
+    abstract fun getComicsListDao(): ComicsListDAO
 
     abstract fun getFavoritesDao(): FavoriteComicsDAO
+
+    abstract fun getRequestDao(): RequestTrackerDao
 
 }

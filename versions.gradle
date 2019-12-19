@@ -38,17 +38,19 @@ ext {
 
 
     // Architecture components
-    roomVersion = "2.2.2"
+    roomVersion = "2.2.3"
     archCoreVersion = "2.1.0"
     lifecycleVersion = "2.1.0"
-    archPagingVersion = "2.1.0"
+    archPagingVersion = "2.1.1"
     navVersion = "2.1.0"
 
     //Image Lib
-    picassoVersion = "2.5.2"
+    picassoVersion = "2.71828"
 
     //Databinding
     dataBindingCompilerVersion = "3.1.1"
 
+    //Coroutines
+    coroutineVerision = "0.9.2"
 
 }

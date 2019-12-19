@@ -14,7 +14,6 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
     }
-
     buildTypes {
         release {
             minifyEnabled false
@@ -33,8 +32,11 @@ dependencies {
 
     implementation "androidx.arch.core:core-runtime:$archCoreVersion"
     implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
+    implementation "com.jakewharton.rxrelay2:rxrelay:$rxRelayVersion"
+
     implementation "androidx.room:room-runtime:$roomVersion"
     implementation "androidx.room:room-rxjava2:$roomVersion"
+    annotationProcessor "androidx.room:room-compiler:$roomVersion"
     kapt "androidx.room:room-compiler:$roomVersion"
     implementation "androidx.paging:paging-runtime:$archPagingVersion"
 
@@ -48,4 +50,5 @@ dependencies {
     androidTestImplementation "androidx.test:runner:$testRunnerVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
     androidTestImplementation "androidx.arch.core:core-testing:$archCoreVersion"
+
 }

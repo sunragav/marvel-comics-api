@@ -7,58 +7,84 @@
 
         <variable
             name="comicsUiModelObserver"
-            type="com.sunragav.indiecampers.feature_home.ui.models.ComicsDataBindingModel" />
+            type="com.sunragav.indiecampers.feature_home.ui.bindings.ComicsDataBindingModel" />
     </data>
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        app:cardCornerRadius="@dimen/cardview_default_radius"
-        app:cardElevation="@dimen/cardview_default_elevation"
+        app:cardCornerRadius="@dimen/card_view_radius"
+        app:cardElevation="@dimen/card_view_elevation"
+        android:onClick="@{comicsUiModelObserver::onClick}"
         tools:ignore="PrivateResource">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="@{comicsUiModelObserver::onClick}"
+            android:background="@color/lightRed"
             android:padding="16dp">
 
             <ImageView
                 android:id="@+id/iv_comics"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="@dimen/comics_icon_width"
+                android:layout_height="@dimen/comics_icon_height"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
                 android:contentDescription="@string/comics_image"
-                android:src="@{comicsUiModelObserver.imageUrl}"
+                android:elevation="@dimen/card_view_elevation"
+                android:scaleType="centerCrop"
+                app:imageUrl="@{comicsUiModelObserver.imageUrl}"
                 app:layout_constraintBottom_toTopOf="parent"
+                app:layout_constraintCircleRadius="@dimen/card_view_radius"
+                app:layout_constraintEnd_toStartOf="@+id/guideline"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toBottomOf="parent" />
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <TextView
                 android:id="@+id/tv_id"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
                 android:text="@{comicsUiModelObserver.id}"
                 android:textColor="@android:color/primary_text_light"
-                app:layout_constraintBottom_toBottomOf="parent"
+                android:textSize="@dimen/comics_name_size"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@+id/guideline2"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintLeft_toRightOf="@+id/iv_comics"
+                app:layout_constraintStart_toStartOf="@+id/guideline"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="1" />
 
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <TextView
                 android:id="@+id/tv_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:ellipsize="end"
+                android:maxLength="80"
+                android:maxLines="3"
                 android:text="@{comicsUiModelObserver.title}"
-                android:textColor="@android:color/secondary_text_light"
-                android:textStyle="bold"
+                android:textColor="@color/lightWhite"
+                android:textSize="@dimen/comics_description_size"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintLeft_toLeftOf="@+id/tv_id"
-                app:layout_constraintTop_toBottomOf="@+id/tv_id"
+                app:layout_constraintStart_toStartOf="@+id/guideline"
+                app:layout_constraintTop_toTopOf="@+id/guideline2"
                 tools:text="Iron Man" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="108dp" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_begin="20dp" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 

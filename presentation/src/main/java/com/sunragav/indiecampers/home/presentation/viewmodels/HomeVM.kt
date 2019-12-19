@@ -4,61 +4,77 @@ package com.sunragav.indiecampers.home.presentation.viewmodels
 import androidx.databinding.ObservableField
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
-import com.jakewharton.rxrelay2.BehaviorRelay
 import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
 import com.sunragav.indiecampers.home.domain.entities.NetworkState
+import com.sunragav.indiecampers.home.domain.entities.NetworkStateRelay
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction.Params
 import com.sunragav.indiecampers.home.domain.usecases.UpdateComicsAction
 import com.sunragav.indiecampers.home.presentation.models.Comics
 import com.sunragav.indiecampers.utils.Mapper
 import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.*
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
 open class HomeVM @Inject internal constructor(
+    private val disposables: CompositeDisposable,
     private val comicsMapper: Mapper<ComicsEntity, Comics>,
     private val getComicsListAction: GetComicsListAction,
-    private val updateComicsAction: UpdateComicsAction
-) : ViewModel() {
+    private val updateComicsAction: UpdateComicsAction,
+    networkStateRelay: NetworkStateRelay
+) : ViewModel(), CoroutineScope {
     companion object {
-        private const val LIMIT = 40
+        private const val LIMIT = 50
     }
 
-    private val filterRequestLiveData = MutableLiveData<Params>()
-    var networkState: BehaviorRelay<NetworkState> = BehaviorRelay.create()
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + viewModelJob
+    private val viewModelJob = SupervisorJob()
+    private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
+    private val bgScope = Dispatchers.IO
+    val filterRequestLiveData = MutableLiveData<Params>()
+
+
     var currentComics = MutableLiveData<ComicsEntity>()
 
-    private var filterRequest = Params(limit = LIMIT, networkState = networkState)
-    private val disposables = CompositeDisposable()
+    private var filterRequest = Params(limit = LIMIT)
     val isLoading = ObservableField<Boolean>()
 
     fun lastSearchQuery() = filterRequestLiveData.value?.searchKey
+    val comicsListSource: LiveData<LiveData<PagedList<ComicsEntity>>>
+        get() = mutablComicsListSource
 
-    private val result =
-        Transformations.map(filterRequestLiveData) { input ->
-            getComicsListAction.buildUseCase(input).blockingFirst()
+    private val mutablComicsListSource = MutableLiveData<LiveData<PagedList<ComicsEntity>>>()
+    fun loadData() {
+        filterRequestLiveData.value?.let { param ->
+            uiScope.launch {
+                withContext(bgScope) {
+                    with(getComicsListAction.getComicsListActionResult(param)) {
+                        mutablComicsListSource.postValue(
+                            LivePagedListBuilder(dataSource, pagingConfig)
+                                .setBoundaryCallback(boundaryCallback)
+                                .build()
+                        )
+                    }
+                }
+            }
         }
+    }
+
 
     private val pagingConfig = PagedList.Config.Builder()
-        .setEnablePlaceholders(false)
+        .setEnablePlaceholders(true)
         .setInitialLoadSizeHint(LIMIT)
         .setPageSize(LIMIT)
         .build()
 
 
-    val comicsListSource: LiveData<PagedList<ComicsEntity>> = Transformations.switchMap(result) {
-        LivePagedListBuilder(it.dataSource, pagingConfig)
-            .setBoundaryCallback(it.boundaryCallback)
-            .build()
-    }
-
-
     init {
-        networkState.accept(NetworkState.EMPTY)
+        networkStateRelay.relay.accept(NetworkState.EMPTY)
     }
 
     fun search(key: String) {

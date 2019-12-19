@@ -10,17 +10,16 @@ typealias Callback = () -> Unit
 
 interface LocalRepository {
     fun insert(
-        comicsEntityList: List<ComicsEntity>,
-        callBack: Callback? = null,
-        errorCallback: Callback? = null
+        comicsEntityList: List<ComicsEntity>
     ): Completable
 
     fun getComicsListDatasourceFactory(param: GetComicsListAction.Params): DataSource.Factory<Int, ComicsEntity>
     fun getComicsById(uniqueIdentifier: String): Observable<ComicsEntity>
     fun getFavoriteComicsListDatasourceFactory(limit: Int): DataSource.Factory<Int, ComicsEntity>
     fun update(
-        comicsEntity: ComicsEntity,
-        callBack: Callback? = null,
-        errorCallback: Callback? = null
+        comicsEntity: ComicsEntity
     ): Completable
+
+    fun getPreviousRequest(): GetComicsListAction.Params
+    fun updateRequest(param: GetComicsListAction.Params)
 }

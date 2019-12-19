@@ -10,9 +10,17 @@ import com.sunragav.indiecampers.feature_home.databinding.ItemViewBinding
 import com.sunragav.indiecampers.feature_home.ui.mapper.ComicsUIEntityMapper
 import com.sunragav.indiecampers.feature_home.ui.recyclerview.viewholders.ComicsViewHolder
 import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
+import com.sunragav.indiecampers.home.presentation.viewmodels.HomeVM
 
-class ComicsPagedListAdapter(private val comicsUIEntityMapper: ComicsUIEntityMapper) :
+
+class ComicsPagedListAdapter(
+    private val comicsUIEntityMapper: ComicsUIEntityMapper,
+    private val viewModel: HomeVM
+) :
     PagedListAdapter<ComicsEntity, ComicsViewHolder>(COMICS_COMPARATOR) {
+    init {
+        setHasStableIds(true)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ComicsViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -25,8 +33,16 @@ class ComicsPagedListAdapter(private val comicsUIEntityMapper: ComicsUIEntityMap
         return ComicsViewHolder(itemComicsBinding)
     }
 
+    override fun getItemId(position: Int): Long {
+        return position.toLong()
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return position
+    }
+
     override fun onBindViewHolder(holder: ComicsViewHolder, position: Int) {
-        getItem(position)?.let { holder.bind(comicsUIEntityMapper.to(it)) }
+        getItem(position)?.let { holder.bind(it, viewModel, comicsUIEntityMapper) }
     }
 
     companion object {

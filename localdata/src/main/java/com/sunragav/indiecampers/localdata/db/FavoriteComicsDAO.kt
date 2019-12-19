@@ -6,20 +6,19 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.sunragav.indiecampers.localdata.models.Favorites
-import io.reactivex.Completable
 
 @Dao
 interface FavoriteComicsDAO {
 
-    @Query("SELECT * FROM favorites LIMIT :limit")
-    fun getFavoriteComicsList(limit: Int): DataSource.Factory<Int, Favorites>
+    @Query("SELECT * FROM favorites")
+    fun getFavoriteComicsList(): DataSource.Factory<Int, Favorites>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(comicsList: List<Favorites>): Completable
+    fun insert(comicsList: List<Favorites>)
 
     @Query("DELETE FROM favorites where id=:id")
-    fun deleteFavorite(id: String): Completable
+    fun deleteFavorite(id: String)
 
     @Query("DELETE FROM favorites")
-    fun clearFavorites(): Completable
+    fun clearFavorites()
 }

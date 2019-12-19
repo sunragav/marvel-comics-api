@@ -1,43 +1,43 @@
 package com.sunragav.indiecampers.localdata.datasource
 
 import androidx.paging.DataSource
-import com.sunragav.indiecampers.home.data.repository.Callback
 import com.sunragav.indiecampers.home.data.repository.LocalRepository
 import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction
 import com.sunragav.indiecampers.localdata.db.ComicsListDAO
 import com.sunragav.indiecampers.localdata.db.FavoriteComicsDAO
+import com.sunragav.indiecampers.localdata.db.RequestTrackerDao
 import com.sunragav.indiecampers.localdata.mapper.ComicsFavoritesMapper
 import com.sunragav.indiecampers.localdata.mapper.ComicsLocalMapper
+import com.sunragav.indiecampers.localdata.models.Request
 import io.reactivex.Completable
 import io.reactivex.Observable
-import java.util.concurrent.atomic.AtomicBoolean
+import io.reactivex.schedulers.Schedulers
+import java.util.*
 import javax.inject.Inject
 
 class LocalDataSourceImpl @Inject constructor(
     private val comicsLocalMapper: ComicsLocalMapper,
     private val comicsFavoritesMapper: ComicsFavoritesMapper,
     private val comicsListDAO: ComicsListDAO,
-    private val favoriteComicsDAO: FavoriteComicsDAO
+    private val favoriteComicsDAO: FavoriteComicsDAO,
+    private val requestDoa: RequestTrackerDao
 ) : LocalRepository {
     override fun insert(
-        comicsEntityList: List<ComicsEntity>,
-        callBack: Callback?,
-        errorCallback: Callback?
+        comicsEntityList: List<ComicsEntity>
     ): Completable {
-        return Completable.fromCallable {
-            comicsListDAO.insert(comicsEntityList.map { comicsLocalMapper.to(it) })
-                .subscribe({ callBack?.invoke() }, { errorCallback?.invoke() })
-        }
+        return comicsListDAO.insert(comicsEntityList.map { comicsLocalMapper.to(it) })
     }
 
     override fun getComicsListDatasourceFactory(param: GetComicsListAction.Params): DataSource.Factory<Int, ComicsEntity> {
         return (if (param.searchKey.isNotBlank())
             comicsListDAO.getComicsList(
-                "%${param.searchKey.replace(' ', '%')}%",
-                param.limit
+                "%${param.searchKey.toUpperCase(Locale.getDefault()).replace(
+                    ' ',
+                    '%'
+                )}%"
             )
-        else comicsListDAO.getComicsList(param.limit))
+        else comicsListDAO.getComicsList())
             .map { comicsLocalMapper.from(it) }
     }
 
@@ -46,37 +46,64 @@ class LocalDataSourceImpl @Inject constructor(
     }
 
     override fun getFavoriteComicsListDatasourceFactory(limit: Int): DataSource.Factory<Int, ComicsEntity> {
-        return favoriteComicsDAO.getFavoriteComicsList(limit).map { comicsFavoritesMapper.from(it) }
+        return favoriteComicsDAO.getFavoriteComicsList().map { comicsFavoritesMapper.from(it) }
     }
 
     override fun update(
-        comicsEntity: ComicsEntity,
-        callBack: Callback?,
-        errorCallback: Callback?
+        comicsEntity: ComicsEntity
     ): Completable {
         return Completable.fromCallable {
-            val err = AtomicBoolean(false)
 
             val comicsLocal = comicsLocalMapper.to(comicsEntity)
             with(comicsLocal) {
                 if (flagged) {
                     favoriteComicsDAO.insert(listOf(comicsFavoritesMapper.to(comicsEntity)))
-                        .subscribe({}) { err.getAndSet(true) }
-
                 } else {
                     favoriteComicsDAO.deleteFavorite(id)
-                        .subscribe({}) { err.getAndSet(true) }
+
                 }
-                if (!err.get())
-                    comicsListDAO.update(this)
-                        .subscribe({}) { err.getAndSet(true) }
+
+                comicsListDAO.update(this)
+
             }
-            if (!err.get())
-                callBack?.invoke()
-            else
-                errorCallback?.invoke()
+        }
+    }
+
+    override fun getPreviousRequest(): GetComicsListAction.Params {
+        val request: Request =
+            Observable.fromCallable { requestDoa.getRequest() }.subscribeOn(Schedulers.io())
+                .onErrorReturn {
+                    Request(
+                        id = 0,
+                        searchKey = "",
+                        flagged = false,
+                        offset = 0
+                    )
+                }
+                .blockingFirst()
+
+        return with(request) {
+            GetComicsListAction.Params(
+                searchKey = searchKey,
+                flagged = flagged,
+                offset = offset
+            )
+        }
+
+    }
 
 
+    override fun updateRequest(param: GetComicsListAction.Params) {
+        requestDoa.delete()
+        with(param) {
+            requestDoa.insert(
+                Request(
+                    id = 0,
+                    searchKey = searchKey,
+                    flagged = flagged,
+                    offset = offset
+                )
+            )
         }
     }
 

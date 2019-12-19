@@ -68,6 +68,9 @@ dependencies {
     implementation "androidx.paging:paging-runtime-ktx:$archPagingVersion"
 
     implementation "com.squareup.picasso:picasso:${picassoVersion}"
+    implementation 'com.github.bumptech.glide:glide:4.8.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.8.0'
+
     implementation "com.jakewharton.rxrelay2:rxrelay:$rxRelayVersion"
 
     // Dagger dependency injection
@@ -81,5 +84,9 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
+    implementation "androidx.navigation:navigation-fragment-ktx:$navVersion"
+    implementation "androidx.navigation:navigation-ui-ktx:$navVersion"
+
 
 }

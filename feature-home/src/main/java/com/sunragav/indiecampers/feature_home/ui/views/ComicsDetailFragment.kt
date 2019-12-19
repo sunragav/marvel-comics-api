@@ -10,8 +10,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.sunragav.indiecampers.feature_home.R
 import com.sunragav.indiecampers.feature_home.databinding.FragmentDetailBinding
+import com.sunragav.indiecampers.feature_home.ui.bindings.ComicsDataBindingModel
 import com.sunragav.indiecampers.feature_home.ui.mapper.ComicsUIEntityMapper
-import com.sunragav.indiecampers.feature_home.ui.models.ComicsDataBindingModel
 import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
 import com.sunragav.indiecampers.home.presentation.factory.ComicsViewModelFactory
 import com.sunragav.indiecampers.home.presentation.viewmodels.HomeVM
@@ -24,7 +24,8 @@ class ComicsDetailFragment : Fragment() {
     lateinit var viewModel: HomeVM
     @Inject
     lateinit var viewModelFactory: ComicsViewModelFactory
-    val comicsUIEntityMapper = ComicsUIEntityMapper()
+    private val comicsUIEntityMapper = ComicsUIEntityMapper()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -43,7 +44,12 @@ class ComicsDetailFragment : Fragment() {
 
 
         viewModel.currentComics.observe(this, Observer<ComicsEntity> {
-            binding.comicsUiModelObserver = ComicsDataBindingModel(comicsUIEntityMapper.to(it))
+            binding.comicsUiModelObserver =
+                ComicsDataBindingModel(
+                    comicsUIEntityMapper.to(it),
+                    viewModel,
+                    comicsUIEntityMapper
+                )
         })
         return binding.root
     }

@@ -43,12 +43,18 @@ dependencies {
 
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycleVersion"
     kapt "androidx.lifecycle:lifecycle-compiler:$lifecycleVersion"
+
     // ReactiveStreams support for LiveData
     implementation "androidx.lifecycle:lifecycle-reactivestreams-ktx:$lifecycleVersion"
     
     implementation "androidx.paging:paging-runtime:$archPagingVersion"
 
     implementation "androidx.room:room-runtime:$roomVersion"
+
+    implementation "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:$coroutineVerision"
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.1.1'
+
+
 
     testImplementation "io.mockk:mockk:$mockkVersion"
 

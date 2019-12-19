@@ -42,12 +42,20 @@ class LocalPersistenceModule {
     @Singleton
     fun providesComicsDAO(
         comicsDB: ComicsDB
-    ) = comicsDB.getComisListDao()
+    ) = comicsDB.getComicsListDao()
 
     @Provides
     @Singleton
     fun providesFavoritesDAO(
         comicsDB: ComicsDB
     ) = comicsDB.getFavoritesDao()
+
+
+    @Provides
+    @Singleton
+    fun providesRequestTrackerDao(
+        comicsDB: ComicsDB
+    ) = comicsDB.getRequestDao()
+
 
 }

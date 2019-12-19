@@ -6,7 +6,7 @@
 
         <variable
             name="comicsUiModelObserver"
-            type="com.sunragav.indiecampers.feature_home.ui.models.ComicsDataBindingModel" />
+            type="com.sunragav.indiecampers.feature_home.ui.bindings.ComicsDataBindingModel" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout

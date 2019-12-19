@@ -11,6 +11,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.paging.PagedList
@@ -22,8 +23,10 @@ import com.sunragav.indiecampers.feature_home.ui.mapper.ComicsUIEntityMapper
 import com.sunragav.indiecampers.feature_home.ui.recyclerview.adapters.ComicsPagedListAdapter
 import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
 import com.sunragav.indiecampers.home.domain.entities.NetworkState
+import com.sunragav.indiecampers.home.domain.entities.NetworkStateRelay
 import com.sunragav.indiecampers.home.presentation.factory.ComicsViewModelFactory
 import com.sunragav.indiecampers.home.presentation.viewmodels.HomeVM
+import com.sunragav.indiecampers.utils.ConnectivityState
 import dagger.android.support.AndroidSupportInjection
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
@@ -33,12 +36,26 @@ class ComicsListFeatureActivityFragment : Fragment() {
     private lateinit var viewModel: HomeVM
     @Inject
     lateinit var viewModelFactory: ComicsViewModelFactory
-    private val disposable = CompositeDisposable()
+
+    @Inject
+    lateinit var disposable: CompositeDisposable
+
+    @Inject
+    lateinit var connectivityState: ConnectivityState
+    @Inject
+    lateinit var networkStateRelay: NetworkStateRelay
+
+
     private lateinit var comicsListAdapter: ComicsPagedListAdapter
+
+    lateinit var query: String
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         AndroidSupportInjection.inject(this)
+
     }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -56,12 +73,12 @@ class ComicsListFeatureActivityFragment : Fragment() {
         binding.rvComicsList.setHasFixedSize(true)
 
 
-
         activity?.let {
             viewModel = ViewModelProviders.of(it, viewModelFactory).get(HomeVM::class.java)
         }
 
         binding.viewModel = viewModel
+
 
         initAdapter(binding)
         initListeners()
@@ -73,24 +90,38 @@ class ComicsListFeatureActivityFragment : Fragment() {
     }
 
     private fun initListeners() {
-        viewModel.comicsListSource.observe(this, Observer<PagedList<ComicsEntity>> {
-            Log.d("Activity", "list: ${it?.size}")
-            showEmptyList(it?.size == 0)
-            comicsListAdapter.submitList(it)
+        viewModel.filterRequestLiveData.observe(this, Observer { viewModel.loadData() })
+        viewModel.comicsListSource.observe(this, Observer<LiveData<PagedList<ComicsEntity>>> {
+            it.observe(this, Observer { pagedList ->
+                Log.d(
+                    "ComicsListFeatureActivityFragment",
+                    "Current paged list size: ${pagedList?.size}"
+                )
+                showEmptyList(pagedList?.size == 0)
+                comicsListAdapter.submitList(pagedList)
+            })
+
         })
         val subscription =
-            viewModel.networkState.subscribe {
+            networkStateRelay.relay.subscribe {
                 when (it) {
                     NetworkState.LOADING -> viewModel.isLoading.set(true)
                     NetworkState.LOADED -> viewModel.isLoading.set(false)
+                    NetworkState.DISCONNECTED -> viewModel.isLoading.set(false)
+                    NetworkState.CONNECTED -> {
+                        viewModel.search(query)
+                    }
                     NetworkState.ERROR -> {
                         viewModel.isLoading.set(false)
-                        Toast.makeText(activity, "\uD83D\uDE28 Wooops ${it.msg}", Toast.LENGTH_LONG)
+                        Toast.makeText(
+                            activity,
+                            "\uD83D\uDE28 Oops!! There was a network error!!",
+                            Toast.LENGTH_LONG
+                        )
                             .show()
                     }
                     NetworkState.EMPTY -> {
-                        Toast.makeText(activity, "\uD83D\uDE28 Wooops ${it.msg}", Toast.LENGTH_LONG)
-                            .show()
+                        viewModel.isLoading.set(false)
                     }
                 }
 
@@ -101,13 +132,12 @@ class ComicsListFeatureActivityFragment : Fragment() {
     override fun onDetach() {
         super.onDetach()
         disposable.dispose()
+
     }
 
-    private fun initAdapter(binding: FragmentComicsListFeatureBinding): HomeVM? {
-        comicsListAdapter = ComicsPagedListAdapter(ComicsUIEntityMapper())
+    private fun initAdapter(binding: FragmentComicsListFeatureBinding) {
+        comicsListAdapter = ComicsPagedListAdapter(ComicsUIEntityMapper(), viewModel)
         binding.rvComicsList.adapter = comicsListAdapter
-
-        return viewModel
     }
 
     private fun showEmptyList(show: Boolean) {
@@ -120,13 +150,17 @@ class ComicsListFeatureActivityFragment : Fragment() {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString(LAST_SEARCH_QUERY, viewModel.lastSearchQuery())
+    }
+
+
     private fun updateComicsListFromInput() {
         binding.searchComics.text.trim().let {
-            if (it.isNotEmpty()) {
-                binding.rvComicsList.scrollToPosition(0)
-                viewModel.search(it.toString())
-                comicsListAdapter.submitList(null)
-            }
+            binding.rvComicsList.scrollToPosition(0)
+            viewModel.search(it.toString())
+            comicsListAdapter.submitList(null)
         }
     }
 
@@ -149,11 +183,6 @@ class ComicsListFeatureActivityFragment : Fragment() {
                 false
             }
         }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString(LAST_SEARCH_QUERY, viewModel.lastSearchQuery())
     }
 
     companion object {

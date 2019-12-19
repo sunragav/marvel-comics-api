@@ -22,7 +22,8 @@ class ComicsDataRepositoryImplTest {
 
     @Before
     fun setup() {
-        comicsDataRepositoryImpl = ComicsDataRepositoryImpl(localRepository, remoteRepository)
+        comicsDataRepositoryImpl =
+            ComicsDataRepositoryImpl(mockk(), localRepository, remoteRepository, mockk(), mockk())
     }
 
     @Test

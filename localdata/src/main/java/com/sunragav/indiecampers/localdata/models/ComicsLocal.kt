@@ -6,7 +6,8 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "comics")
 data class ComicsLocal(
-    @PrimaryKey @ColumnInfo(name = "id") val id: String,
+    @PrimaryKey(autoGenerate = true) val i: Int = 0,
+    @ColumnInfo(name = "id") val id: String,
     @ColumnInfo(name = "title") val title: String,
     @ColumnInfo(name = "description") val description: String,
     @ColumnInfo(name = "thumbNail") val thumbNail: String,

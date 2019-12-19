@@ -5,10 +5,12 @@ import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
 import com.sunragav.indiecampers.remotedata.api.ComicsService
 import com.sunragav.indiecampers.remotedata.mapper.ComicsRemoteMapper
 import com.sunragav.indiecampers.remotedata.models.Comic
+import com.sunragav.indiecampers.remotedata.models.DataWrapper
 import com.sunragav.indiecampers.remotedata.qualifiers.PrivateKey
 import com.sunragav.indiecampers.remotedata.qualifiers.PublicKey
 import com.sunragav.indiecampers.utils.HashGenerator
 import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
@@ -18,36 +20,51 @@ class NetworkDataSource @Inject constructor(
     private val hashGenerator: HashGenerator,
     @PublicKey private val publicKey: String,
     @PrivateKey private val privatekey: String
-) : RemoteRepository {
 
+) : RemoteRepository {
     override fun getComicsList(
         query: String,
         lastRequestedPage: Int,
-        limit: Int,
-        successCallback: (List<ComicsEntity>) -> Unit,
-        failureCallback: (Throwable) -> Unit
-    ) {
-        try {
-            val timestamp = System.currentTimeMillis()
-            successCallback.invoke(
-                comicsService.getComicsList(
-                    titleStartsWith = query,
-                    offset = lastRequestedPage,
-                    limit = limit,
-                    timestamp = timestamp,
-                    md5Digest = hashGenerator.buildMD5Digest("$timestamp$privatekey$publicKey")
-                ).observeOn(Schedulers.io())
-                    .blockingGet().data.results.filter(::isValid).map { comic ->
+        limit: Int
+    ): Single<List<ComicsEntity>> {
+        return serviceCall(
+            query = query,
+            lastRequestedPage = lastRequestedPage * limit,
+            limit = limit
+        ).subscribeOn(Schedulers.io())
+            .map {
+                it.data.results.filter(::isValid).map { comic ->
                     comicsRemoteMapper.from(
                         comic
                     )
                 }
-            )
-        } catch (e: Throwable) {
-            failureCallback.invoke(Throwable(e))
-        }
+            }
 
     }
+
+    private fun serviceCall(
+        query: String,
+        lastRequestedPage: Int,
+        limit: Int
+    ): Single<DataWrapper<List<Comic>>> {
+        val timestamp = System.currentTimeMillis()
+        val hash = "$timestamp$privatekey$publicKey"
+        return (if (query.isBlank())
+            comicsService.getAllComicsList(
+                offset = lastRequestedPage,
+                limit = limit,
+                timestamp = timestamp,
+                md5Digest = hashGenerator.buildMD5Digest(hash)
+            )
+        else comicsService.getComicsListStartsWithTitle(
+            titleStartsWith = query,
+            offset = lastRequestedPage,
+            limit = limit,
+            timestamp = timestamp,
+            md5Digest = hashGenerator.buildMD5Digest(hash)
+        ))
+    }
+
 
     override fun getComicsById(uniqueIdentifier: String): Observable<ComicsEntity> {
         return comicsService.getComicsById(

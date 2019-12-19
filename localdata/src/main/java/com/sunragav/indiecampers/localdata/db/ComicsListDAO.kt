@@ -10,16 +10,15 @@ import io.reactivex.Observable
 interface ComicsListDAO {
 
     @Query(
-        "SELECT * FROM comics where (title like :searchKey) or (id LIKE :searchKey) " +
-                "or (description LIKE :searchKey) ORDER BY id DESC LIMIT :limit"
+        "SELECT * FROM comics where upper(title) like :searchKey"
     )
-    fun getComicsList(searchKey: String, limit: Int): DataSource.Factory<Int, ComicsLocal>
+    fun getComicsList(searchKey: String): DataSource.Factory<Int, ComicsLocal>
 
-    @Query("SELECT * FROM comics LIMIT :limit")
-    fun getComicsList(limit: Int): DataSource.Factory<Int, ComicsLocal>
+    @Query("SELECT * FROM comics")
+    fun getComicsList(): DataSource.Factory<Int, ComicsLocal>
 
     @Update
-    fun update(comics: ComicsLocal): Completable
+    fun update(comics: ComicsLocal)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insert(comicsList: List<ComicsLocal>): Completable
@@ -27,6 +26,6 @@ interface ComicsListDAO {
     @Query("SELECT * FROM comics WHERE id = :id")
     fun getComicsById(id: String): Observable<ComicsLocal>
 
-    @Query("DELETE FROM comics")
-    fun clearComicsTable(): Completable
+    @Query("DELETE FROM comics where i IN (SELECT i FROM comics ORDER BY i LIMIT 10)")
+    fun clearComicsTopTenFromTable()
 }

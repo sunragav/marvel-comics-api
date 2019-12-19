@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.sunragav.indiecampers.feature_home.ui.views.ComicsListFeatureActivity
 
 
-class MainActivity : AppCompatActivity() {
+class SplashActivity : AppCompatActivity() {
 
     val mHandler = Handler()
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -16,6 +16,6 @@ class MainActivity : AppCompatActivity() {
         mHandler.postDelayed({
             val i = Intent(applicationContext, ComicsListFeatureActivity::class.java)
             startActivity(i)
-        }, 100)
+        }, 500)
     }
 }

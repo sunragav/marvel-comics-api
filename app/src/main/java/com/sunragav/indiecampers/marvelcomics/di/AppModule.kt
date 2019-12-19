@@ -5,7 +5,7 @@ import android.content.Context
 import com.sunragav.indiecampers.feature_home.ui.views.ComicsDetailFragment
 import com.sunragav.indiecampers.feature_home.ui.views.ComicsListFeatureActivity
 import com.sunragav.indiecampers.feature_home.ui.views.ComicsListFeatureActivityFragment
-import com.sunragav.indiecampers.marvelcomics.MainActivity
+import com.sunragav.indiecampers.marvelcomics.SplashActivity
 import dagger.Binds
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
@@ -17,7 +17,7 @@ abstract class AppModule {
     abstract fun bindContext(application: Application): Context
 
     @ContributesAndroidInjector
-    internal abstract fun contributesMainActivity(): MainActivity
+    internal abstract fun contributesMainActivity(): SplashActivity
 
     @ContributesAndroidInjector
     internal abstract fun contributesComicsListFeautreActivity(): ComicsListFeatureActivity

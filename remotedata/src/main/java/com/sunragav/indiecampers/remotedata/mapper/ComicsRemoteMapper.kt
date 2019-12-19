@@ -10,7 +10,7 @@ class ComicsRemoteMapper : Mapper<ComicsEntity, Comic> {
         return ComicsEntity(
             id = model.id.toString(),
             title = model.title,
-            description = model.description,
+            description = model.description ?: "",
             thumbNail = with(model.thumbnail) { "$path.$extension" },
             imageUrls = model.images.map { "${it.path}.${it.extension}" },
             flagged = false

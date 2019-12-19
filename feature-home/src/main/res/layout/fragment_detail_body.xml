@@ -7,12 +7,13 @@
 
         <variable
             name="comicsUiModelObserver"
-            type="com.sunragav.indiecampers.feature_home.ui.models.ComicsDataBindingModel" />
+            type="com.sunragav.indiecampers.feature_home.ui.bindings.ComicsDataBindingModel" />
     </data>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/lightRed"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
         <LinearLayout
@@ -22,58 +23,62 @@
             android:layout_marginRight="@dimen/detail_content_margin"
             android:orientation="vertical">
 
-            <com.google.android.material.card.MaterialCardView
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
-                app:cardCornerRadius="@dimen/cardview_default_radius"
-                app:cardElevation="@dimen/cardview_default_elevation"
+                app:cardCornerRadius="@dimen/card_view_radius"
+                app:cardElevation="@dimen/card_view_elevation"
                 tools:ignore="PrivateResource">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@android:color/holo_orange_dark"
                     android:padding="16dp">
 
-                    <androidx.appcompat.widget.AppCompatTextView
+                    <TextView
                         android:id="@+id/tv_title"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:text="@{comicsUiModelObserver.title}"
+                        android:textColor="@android:color/background_dark"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.5"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        tools:text="IRON MAN"
-                        tools:ignore="PrivateResource" />
+                        tools:ignore="PrivateResource"
+                        tools:text="IRON MAN" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
-            </com.google.android.material.card.MaterialCardView>
+            </androidx.cardview.widget.CardView>
 
-            <com.google.android.material.card.MaterialCardView
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_marginBottom="8dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
-                app:cardCornerRadius="@dimen/cardview_default_radius"
-                app:cardElevation="@dimen/cardview_default_elevation"
+                app:cardCornerRadius="@dimen/card_view_radius"
+                app:cardElevation="@dimen/card_view_elevation"
                 tools:ignore="PrivateResource">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@color/lightRed"
                     android:padding="16dp">
 
 
-                    <androidx.appcompat.widget.AppCompatTextView
+                    <TextView
                         android:id="@+id/tv_description"
-                        android:layout_width="43dp"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="@{comicsUiModelObserver.description}"
+                        android:textColor="@color/lightWhite"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -82,7 +87,7 @@
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
-            </com.google.android.material.card.MaterialCardView>
+            </androidx.cardview.widget.CardView>
 
         </LinearLayout>
 

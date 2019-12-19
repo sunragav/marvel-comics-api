@@ -3,7 +3,7 @@ package com.sunragav.indiecampers.remotedata.models
 data class Comic(
     val id: Int,
     val title: String,
-    val description: String,
+    val description: String?,
     val thumbnail: Image,
     val images: List<Image>
 )

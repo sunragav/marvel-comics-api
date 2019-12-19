@@ -40,12 +40,12 @@ class ComicsDAOTest {
             .allowMainThreadQueries()
             .build()
 
-        comicsListDAO = comicsDB.getComisListDao()
+        comicsListDAO = comicsDB.getComicsListDao()
     }
 
     @After
     fun tearDown() {
-        comicsListDAO.clearComicsTable().subscribe()
+        comicsListDAO.clearComicsTopTenFromTable()
         comicsDB.close()
     }
 
@@ -58,19 +58,18 @@ class ComicsDAOTest {
         comicsListDAO.insert(comicsList).test()
 
         var result =
-            (comicsListDAO.getComicsList("143", LIMIT).create() as LimitOffsetDataSource).loadRange(
+            (comicsListDAO.getComicsList("143").create() as LimitOffsetDataSource).loadRange(
                 0,
                 LIMIT
             )
         assertThat(result.size, equalTo(1))
 
         result = (comicsListDAO.getComicsList(
-            "%12%",
-            LIMIT
+            "%12%"
         ).create() as LimitOffsetDataSource).loadRange(0, LIMIT)
         assertThat(result.size, equalTo(2))
 
-        result = (comicsListDAO.getComicsList(LIMIT).create() as LimitOffsetDataSource).loadRange(
+        result = (comicsListDAO.getComicsList().create() as LimitOffsetDataSource).loadRange(
             0,
             LIMIT
         )
@@ -85,7 +84,7 @@ class ComicsDAOTest {
         comicsListDAO.insert(listOf(comics)).test()
         assertThat(comics.flagged, equalTo(true))
 
-        comicsListDAO.update(comics.copy(title = "TEST", flagged = false)).subscribe()
+        comicsListDAO.update(comics.copy(title = "TEST", flagged = false))
 
 
 
@@ -106,16 +105,16 @@ class ComicsDAOTest {
         comicsListDAO.insert(comicsList).subscribe()
 
         var result =
-            (comicsListDAO.getComicsList(LIMIT).create() as LimitOffsetDataSource).loadRange(
+            (comicsListDAO.getComicsList().create() as LimitOffsetDataSource).loadRange(
                 0,
                 LIMIT
             )
         assertThat(result.size, equalTo(comicsList.size))
 
 
-        comicsListDAO.clearComicsTable().subscribe()
+        comicsListDAO.clearComicsTopTenFromTable()
 
-        result = (comicsListDAO.getComicsList(LIMIT).create() as LimitOffsetDataSource).loadRange(
+        result = (comicsListDAO.getComicsList().create() as LimitOffsetDataSource).loadRange(
             0,
             LIMIT
         )
