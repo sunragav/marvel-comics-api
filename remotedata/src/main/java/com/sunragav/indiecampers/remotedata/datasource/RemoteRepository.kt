@@ -67,10 +67,12 @@ class NetworkDataSource @Inject constructor(
 
 
     override fun getComicsById(uniqueIdentifier: String): Observable<ComicsEntity> {
+        val timestamp = System.currentTimeMillis()
+        val hash = "$timestamp$privatekey$publicKey"
         return comicsService.getComicsById(
             id = uniqueIdentifier,
-            timestamp = 4975897,
-            md5Digest = "",
+            timestamp = timestamp,
+            md5Digest = hash,
             offset = 0,
             limit = 1
         ).map { comicsRemoteMapper.from(it.data.results.first()) }

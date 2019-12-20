@@ -16,6 +16,8 @@ class SplashActivity : AppCompatActivity() {
         mHandler.postDelayed({
             val i = Intent(applicationContext, ComicsListFeatureActivity::class.java)
             startActivity(i)
+            finish()
         }, 500)
+
     }
 }

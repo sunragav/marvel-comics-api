@@ -1,5 +1,6 @@
 package com.sunragav.indiecampers.feature_home.ui.views
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -25,12 +26,16 @@ class ComicsDetailFragment : Fragment() {
     @Inject
     lateinit var viewModelFactory: ComicsViewModelFactory
     private val comicsUIEntityMapper = ComicsUIEntityMapper()
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        AndroidSupportInjection.inject(this)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        AndroidSupportInjection.inject(this)
+
         binding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_detail,
@@ -44,13 +49,16 @@ class ComicsDetailFragment : Fragment() {
 
 
         viewModel.currentComics.observe(this, Observer<ComicsEntity> {
-            binding.comicsUiModelObserver =
-                ComicsDataBindingModel(
-                    comicsUIEntityMapper.to(it),
-                    viewModel,
-                    comicsUIEntityMapper
-                )
+            if (it.id != "default")
+                binding.comicsUiModelObserver =
+                    ComicsDataBindingModel(
+                        comicsUIEntityMapper.to(it),
+                        viewModel,
+                        comicsUIEntityMapper
+                    )
+
         })
+
         return binding.root
     }
 

@@ -30,15 +30,9 @@ class LocalDataSourceImpl @Inject constructor(
     }
 
     override fun getComicsListDatasourceFactory(param: GetComicsListAction.Params): DataSource.Factory<Int, ComicsEntity> {
-        return (if (param.searchKey.isNotBlank())
-            comicsListDAO.getComicsList(
-                "%${param.searchKey.toUpperCase(Locale.getDefault()).replace(
-                    ' ',
-                    '%'
-                )}%"
-            )
-        else comicsListDAO.getComicsList())
-            .map { comicsLocalMapper.from(it) }
+        return comicsListDAO.getComicsList(
+            "%${param.searchKey.toUpperCase(Locale.getDefault()).replace(' ', '%')}%"
+        ).map { comicsLocalMapper.from(it) }
     }
 
     override fun getComicsById(uniqueIdentifier: String): Observable<ComicsEntity> {

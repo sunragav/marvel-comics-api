@@ -48,7 +48,11 @@ class ComicsListFeatureActivityFragment : Fragment() {
 
     private lateinit var comicsListAdapter: ComicsPagedListAdapter
 
-    lateinit var query: String
+    private var prevChildLivedata: LiveData<PagedList<ComicsEntity>>? = null
+
+    private var prevMasterLivedata: LiveData<LiveData<PagedList<ComicsEntity>>>? = null
+
+    var query: String = ""
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -82,26 +86,36 @@ class ComicsListFeatureActivityFragment : Fragment() {
 
         initAdapter(binding)
         initListeners()
-        val query = savedInstanceState?.getString(LAST_SEARCH_QUERY) ?: DEFAULT_QUERY
+        query = savedInstanceState?.getString(LAST_SEARCH_QUERY) ?: DEFAULT_QUERY
         viewModel.search(query)
-        initSearch(query)
+        initSearch()
 
         return binding.root
     }
 
-    private fun initListeners() {
-        viewModel.filterRequestLiveData.observe(this, Observer { viewModel.loadData() })
-        viewModel.comicsListSource.observe(this, Observer<LiveData<PagedList<ComicsEntity>>> {
-            it.observe(this, Observer { pagedList ->
-                Log.d(
-                    "ComicsListFeatureActivityFragment",
-                    "Current paged list size: ${pagedList?.size}"
-                )
-                showEmptyList(pagedList?.size == 0)
-                comicsListAdapter.submitList(pagedList)
-            })
+    private val pagedListLiveDataObserver = Observer<PagedList<ComicsEntity>> { pagedList ->
+        Log.d(
+            "ComicsListFeatureActivityFragment",
+            "Current paged list size: ${pagedList?.size}"
+        )
+        showEmptyList(pagedList?.size == 0)
+        comicsListAdapter.submitList(pagedList)
 
-        })
+    }
+
+    val liveDataObserver = Observer<LiveData<PagedList<ComicsEntity>>> {
+        prevChildLivedata?.removeObserver(pagedListLiveDataObserver)
+        it.observe(this, pagedListLiveDataObserver)
+        prevChildLivedata = it
+
+    }
+
+    private fun initListeners() {
+        //viewModel.comicsListSource.observe(this, liveDataObserver)
+        //  prevMasterLivedata = viewModel.comicsListSource
+        prevChildLivedata?.removeObserver(pagedListLiveDataObserver)
+        viewModel.comicsListSource.observe(this, pagedListLiveDataObserver)
+        prevChildLivedata = viewModel.comicsListSource
         val subscription =
             networkStateRelay.relay.subscribe {
                 when (it) {
@@ -121,7 +135,7 @@ class ComicsListFeatureActivityFragment : Fragment() {
                             .show()
                     }
                     NetworkState.EMPTY -> {
-                        viewModel.isLoading.set(false)
+                        viewModel.isLoading.set(true)
                     }
                 }
 
@@ -164,7 +178,7 @@ class ComicsListFeatureActivityFragment : Fragment() {
         }
     }
 
-    private fun initSearch(query: String) {
+    private fun initSearch() {
         binding.searchComics.setText(query)
 
         binding.searchComics.setOnEditorActionListener { _, actionId, _ ->

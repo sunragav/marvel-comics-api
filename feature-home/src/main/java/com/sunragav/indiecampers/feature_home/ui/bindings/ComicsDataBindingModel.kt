@@ -23,10 +23,9 @@ class ComicsDataBindingModel(
 
     fun onClick(view: View) {
         viewModel.currentComics.postValue(comicsUIEntityMapper.from(comics))
-        // ComicsListFeatureActivityFragmentDirections.
-        //   Navigation.createNavigateOnClickListener(R.id.action_comicsListFeatureActivityFragment_to_comicsDetailFragment)
-        view.findNavController()
-            .navigate(R.id.action_comicsListFeatureActivityFragment_to_comicsDetailFragment)
+        if (view.context.resources.getBoolean(R.bool.isTablet).not())
+            view.findNavController()
+                .navigate(R.id.action_comicsListFeatureActivityFragment_to_comicsDetailFragment)
     }
 }
 

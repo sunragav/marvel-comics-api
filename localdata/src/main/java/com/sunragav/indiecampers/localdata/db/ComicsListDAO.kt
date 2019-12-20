@@ -26,6 +26,6 @@ interface ComicsListDAO {
     @Query("SELECT * FROM comics WHERE id = :id")
     fun getComicsById(id: String): Observable<ComicsLocal>
 
-    @Query("DELETE FROM comics where i IN (SELECT i FROM comics ORDER BY i LIMIT 10)")
+    @Query("DELETE FROM comics")
     fun clearComicsTopTenFromTable()
 }
