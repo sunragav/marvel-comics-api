@@ -63,18 +63,12 @@ class ComicsDataRepositoryImpl @Inject constructor(
             requestAndSaveData(query)
 
         private fun requestAndSaveData(query: GetComicsListAction.Params) {
+
             if (isRequestInProgress) {
                 return
             }
-            val networkState = networkStateRelay.relay
-            networkState.accept(NetworkState.LOADING)
+            networkStateRelay.relay.accept(NetworkState.LOADING)
             println("Requesting page$lastRequestedPage")
-            val prevSuccessfulQuery = localRepository.getPreviousRequest()
-            lastRequestedPage = if (query.searchKey != prevSuccessfulQuery.searchKey) {
-                0
-            } else {
-                prevSuccessfulQuery.offset
-            }
             isRequestInProgress = true
             disposable.add(
                 remoteRepository.getComicsList(
@@ -84,15 +78,27 @@ class ComicsDataRepositoryImpl @Inject constructor(
                 ).subscribeOn(backgroundScheduler).observeOn(backgroundScheduler).subscribe(
                     { comicsList ->
                         println("Loaded page$lastRequestedPage offset:${lastRequestedPage * query.limit}")
-                        localRepository.insert(comicsList).subscribe {
-                            networkState.accept(NetworkState.LOADED)
+                        localRepository.insert(comicsList)
+                            .subscribeOn(backgroundScheduler)
+                            .observeOn(backgroundScheduler)
+                            .subscribe {
                             lastRequestedPage++
                             isRequestInProgress = false
                             localRepository.updateRequest(query.copy(offset = lastRequestedPage))
                         }
+
+                        Observable.fromCallable {
+                            networkStateRelay.relay.accept(NetworkState.LOADED)
+                        }.subscribeOn(foregroundScheduler).observeOn(foregroundScheduler)
+                            .subscribe()
+
+
                     },
                     { error ->
-                        networkState.accept(NetworkState.error(error.localizedMessage))
+                        Observable.fromCallable {
+                            networkStateRelay.relay.accept(NetworkState.error(error.localizedMessage))
+                        }.subscribeOn(foregroundScheduler).observeOn(foregroundScheduler)
+                            .subscribe()
                         isRequestInProgress = false
                     })
             )

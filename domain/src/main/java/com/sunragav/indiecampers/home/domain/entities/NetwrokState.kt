@@ -2,6 +2,7 @@ package com.sunragav.indiecampers.home.domain.entities
 
 import com.jakewharton.rxrelay2.BehaviorRelay
 import javax.inject.Inject
+import javax.inject.Singleton
 
 data class NetworkState(
     val status: Status,
@@ -29,6 +30,7 @@ data class NetworkState(
     }
 }
 
+@Singleton
 class NetworkStateRelay @Inject constructor() {
     val relay: BehaviorRelay<NetworkState> = BehaviorRelay.create()
 }

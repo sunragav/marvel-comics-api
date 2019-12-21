@@ -27,5 +27,5 @@ interface ComicsListDAO {
     fun getComicsById(id: String): Observable<ComicsLocal>
 
     @Query("DELETE FROM comics")
-    fun clearComicsTopTenFromTable()
+    fun clearComicsFromTable()
 }

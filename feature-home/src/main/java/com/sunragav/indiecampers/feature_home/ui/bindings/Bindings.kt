@@ -18,8 +18,8 @@ fun convertBooleanToVisibility(visible: Boolean): Int {
 }
 
 @BindingAdapter("imageUrl")
-fun setImageUrl(view: ImageView?, field: ObservableField<String>) {
-    val url = field.get()
+fun setImageUrl(view: ImageView?, field: ObservableField<String>?) {
+    val url = field?.get()
     if (!url.isNullOrBlank() && view != null) {
         Glide.with(view.context)
             .load(url).apply(

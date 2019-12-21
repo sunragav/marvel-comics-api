@@ -45,7 +45,7 @@ class ComicsDAOTest {
 
     @After
     fun tearDown() {
-        comicsListDAO.clearComicsTopTenFromTable()
+        comicsListDAO.clearComicsFromTable()
         comicsDB.close()
     }
 
@@ -112,7 +112,7 @@ class ComicsDAOTest {
         assertThat(result.size, equalTo(comicsList.size))
 
 
-        comicsListDAO.clearComicsTopTenFromTable()
+        comicsListDAO.clearComicsFromTable()
 
         result = (comicsListDAO.getComicsList().create() as LimitOffsetDataSource).loadRange(
             0,

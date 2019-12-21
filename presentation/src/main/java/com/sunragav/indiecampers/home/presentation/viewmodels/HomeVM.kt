@@ -2,9 +2,7 @@ package com.sunragav.indiecampers.home.presentation.viewmodels
 
 
 import androidx.databinding.ObservableField
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
@@ -13,9 +11,7 @@ import com.sunragav.indiecampers.home.domain.entities.NetworkStateRelay
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction.Params
 import io.reactivex.disposables.CompositeDisposable
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.*
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
@@ -59,20 +55,29 @@ open class HomeVM @Inject internal constructor(
         .build()
 
 
-    private val searchResult = Transformations.map(filterRequestLiveData) { param ->
-        with(getComicsListAction.getComicsListActionResult(param)) {
-            LivePagedListBuilder(dataSource, pagingConfig)
-                .setBoundaryCallback(boundaryCallback)
-                .build()
-        }
-    }
+    val comicsListSource: LiveData<PagedList<ComicsEntity>>
+        get() = Transformations.switchMap(filterRequestMediator) { it }
 
-    val comicsListSource = Transformations.switchMap(searchResult) { it }
+    private val filterRequestMediator = MediatorLiveData<LiveData<PagedList<ComicsEntity>>>()
+
 
     init {
         networkStateRelay.relay.accept(NetworkState.EMPTY)
         currentComics.value = defaultComics
+        filterRequestMediator.addSource(filterRequestLiveData) { param ->
+            uiScope.launch {
+                withContext(bgScope) {
+                    with(getComicsListAction.getComicsListActionResult(param)) {
+                        filterRequestMediator.postValue(
+                            LivePagedListBuilder(dataSource, pagingConfig)
+                                .setBoundaryCallback(boundaryCallback)
+                                .build()
+                        )
 
+                    }
+                }
+            }
+        }
     }
 
     fun search(key: String) {

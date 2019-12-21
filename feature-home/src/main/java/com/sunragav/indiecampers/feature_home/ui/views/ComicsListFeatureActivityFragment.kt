@@ -31,6 +31,7 @@ import dagger.android.support.AndroidSupportInjection
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
+
 class ComicsListFeatureActivityFragment : Fragment() {
     private lateinit var binding: FragmentComicsListFeatureBinding
     private lateinit var viewModel: HomeVM
@@ -53,6 +54,7 @@ class ComicsListFeatureActivityFragment : Fragment() {
     private var prevMasterLivedata: LiveData<LiveData<PagedList<ComicsEntity>>>? = null
 
     var query: String = ""
+    var prevNetworkState: NetworkState = NetworkState.EMPTY
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -87,9 +89,8 @@ class ComicsListFeatureActivityFragment : Fragment() {
         initAdapter(binding)
         initListeners()
         query = savedInstanceState?.getString(LAST_SEARCH_QUERY) ?: DEFAULT_QUERY
-        viewModel.search(query)
+        //viewModel.search(query)
         initSearch()
-
         return binding.root
     }
 
@@ -105,8 +106,8 @@ class ComicsListFeatureActivityFragment : Fragment() {
 
     }
 
-    val liveDataObserver = Observer<LiveData<PagedList<ComicsEntity>>> {
-        prevChildLivedata?.removeObserver(pagedListLiveDataObserver)
+    private val liveDataObserver = Observer<LiveData<PagedList<ComicsEntity>>> {
+        // prevChildLivedata?.removeObserver(pagedListLiveDataObserver)
         it.observe(this, pagedListLiveDataObserver)
         prevChildLivedata = it
 
@@ -121,9 +122,18 @@ class ComicsListFeatureActivityFragment : Fragment() {
                 when (it) {
                     NetworkState.LOADING -> viewModel.isLoading.set(true)
                     NetworkState.LOADED -> viewModel.isLoading.set(false)
-                    NetworkState.DISCONNECTED -> viewModel.isLoading.set(false)
+                    NetworkState.DISCONNECTED -> {
+                        Toast.makeText(
+                            activity,
+                            "\uD83D\uDE28 Oops!! Network Connection lost!!",
+                            Toast.LENGTH_LONG
+                        )
+                        viewModel.isLoading.set(false)
+                    }
                     NetworkState.CONNECTED -> {
-                        viewModel.search(query)
+                        if (prevNetworkState == NetworkState.LOADING) {
+                            viewModel.search(query)
+                        }
                     }
                     NetworkState.ERROR -> {
                         viewModel.isLoading.set(false)
@@ -135,10 +145,10 @@ class ComicsListFeatureActivityFragment : Fragment() {
                             .show()
                     }
                     NetworkState.EMPTY -> {
-                        viewModel.isLoading.set(true)
+                        viewModel.search(query)
                     }
                 }
-
+                prevNetworkState = it
             }
         subscription?.let { disposable.add(it) }
     }

@@ -85,13 +85,13 @@ class ComicsListFeatureActivity : AppCompatActivity() {
 
     fun connected() {
         connectivityState.connected.getAndSet(true)
-        networkStateRelay.relay.accept(NetworkState.DISCONNECTED)
+        networkStateRelay.relay.accept(NetworkState.CONNECTED)
 
     }
 
     fun disconnected() {
         connectivityState.connected.getAndSet(false)
-        networkStateRelay.relay.accept(NetworkState.CONNECTED)
+        networkStateRelay.relay.accept(NetworkState.DISCONNECTED)
     }
 
     override fun onDestroy() {
