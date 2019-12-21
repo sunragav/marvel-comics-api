@@ -10,20 +10,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.NavHostFragment
+import com.bumptech.glide.Glide
+import com.bumptech.glide.MemoryCategory
 import com.sunragav.indiecampers.feature_home.R
 import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
 import com.sunragav.indiecampers.home.domain.entities.NetworkState
 import com.sunragav.indiecampers.home.domain.entities.NetworkStateRelay
 import com.sunragav.indiecampers.home.presentation.factory.ComicsViewModelFactory
 import com.sunragav.indiecampers.home.presentation.viewmodels.HomeVM
-import com.sunragav.indiecampers.utils.ConnectivityState
 import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.content_comics_list_feature_land.*
 import javax.inject.Inject
 
 class ComicsListFeatureActivity : AppCompatActivity() {
-    @Inject
-    lateinit var connectivityState: ConnectivityState
 
     @Inject
     lateinit var networkStateRelay: NetworkStateRelay
@@ -51,8 +50,10 @@ class ComicsListFeatureActivity : AppCompatActivity() {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
 
-        viewModel = ViewModelProviders.of(this, viewModelFactory).get(HomeVM::class.java)
 
+        Glide.get(this).setMemoryCategory(MemoryCategory.LOW)
+
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(HomeVM::class.java)
 
         val isTablet = resources.getBoolean(R.bool.isTablet)
 
@@ -84,13 +85,11 @@ class ComicsListFeatureActivity : AppCompatActivity() {
 
 
     fun connected() {
-        connectivityState.connected.getAndSet(true)
         networkStateRelay.relay.accept(NetworkState.CONNECTED)
 
     }
 
     fun disconnected() {
-        connectivityState.connected.getAndSet(false)
         networkStateRelay.relay.accept(NetworkState.DISCONNECTED)
     }
 

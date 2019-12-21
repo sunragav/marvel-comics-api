@@ -1,7 +1,8 @@
-package com.sunragav.indiecampers.marvelcomics.di
+package com.sunragav.indiecampers.feature_home.di
 
 import com.sunragav.indiecampers.home.data.repository.RemoteRepository
 import com.sunragav.indiecampers.marvelcomics.BuildConfig
+import com.sunragav.indiecampers.feature_home.utils.FakeComicsService
 import com.sunragav.indiecampers.remotedata.api.ComicsService
 import com.sunragav.indiecampers.remotedata.datasource.NetworkDataSource
 import com.sunragav.indiecampers.remotedata.http.ApiKeyInterceptor
@@ -31,8 +32,8 @@ class RemoteModule {
         fun bindsRemoteSource(
             remoteDataSourceImpl: NetworkDataSource
         ): RemoteRepository
-    }
 
+    }
     @Provides
     @PublicKey
     fun providePublicKey() = BuildConfig.PUBLIC_KEY
@@ -40,17 +41,18 @@ class RemoteModule {
     @Provides
     @PrivateKey
     fun providePrivateKey() = BuildConfig.PRIVATE_KEY
-
     @Provides
     @Singleton
     fun provideComicsRemoteMapper() = ComicsRemoteMapper()
 
     @Provides
-    fun provicesComicsService(retrofit: Retrofit): ComicsService =
-        retrofit.create(ComicsService::class.java)
+    @Singleton
+    fun provideComicsService(retrofit: Retrofit): ComicsService =
+        FakeComicsService()
 
 
     @Provides
+    @Singleton
     fun providesRetrofit(okHttpClient: OkHttpClient): Retrofit =
         Retrofit.Builder()
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())

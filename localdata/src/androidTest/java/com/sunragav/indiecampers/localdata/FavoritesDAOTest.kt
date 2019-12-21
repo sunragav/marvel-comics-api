@@ -45,7 +45,7 @@ class FavoritesDAOTest {
 
     @After
     fun tearDown() {
-        favoriteListDAO.clearFavorites().subscribe()
+        favoriteListDAO.clearFavorites()
         comicsDB.close()
     }
 
@@ -55,10 +55,10 @@ class FavoritesDAOTest {
         val comicsList = TestDataContainer.getFavoritesList()
         val comicsCount = comicsList.size
 
-        favoriteListDAO.insert(comicsList).subscribe()
+        favoriteListDAO.insert(comicsList)
 
         val result =
-            (favoriteListDAO.getFavoriteComicsList(LIMIT).create() as LimitOffsetDataSource).loadRange(
+            (favoriteListDAO.getFavoriteComicsList().create() as LimitOffsetDataSource).loadRange(
                 0,
                 LIMIT
             )
@@ -70,14 +70,14 @@ class FavoritesDAOTest {
 
         val comics = TestDataContainer.getFavorite()
 
-        favoriteListDAO.insert(listOf(comics)).test()
+        favoriteListDAO.insert(listOf(comics))
         assertThat(comics.flagged, equalTo(true))
 
-        favoriteListDAO.deleteFavorite(comics.id).subscribe()
+        favoriteListDAO.deleteFavorite(comics.id)
 
 
         val result =
-            (favoriteListDAO.getFavoriteComicsList(LIMIT).create() as LimitOffsetDataSource).loadRange(
+            (favoriteListDAO.getFavoriteComicsList().create() as LimitOffsetDataSource).loadRange(
                 0,
                 LIMIT
             )
@@ -90,20 +90,20 @@ class FavoritesDAOTest {
     fun test_clearComicsTable() {
         val comicsList = TestDataContainer.getFavoritesList()
 
-        favoriteListDAO.insert(comicsList).subscribe()
+        favoriteListDAO.insert(comicsList)
 
         var result =
-            (favoriteListDAO.getFavoriteComicsList(LIMIT).create() as LimitOffsetDataSource).loadRange(
+            (favoriteListDAO.getFavoriteComicsList().create() as LimitOffsetDataSource).loadRange(
                 0,
                 LIMIT
             )
         assertThat(result.size, equalTo(comicsList.size))
 
 
-        favoriteListDAO.clearFavorites().subscribe()
+        favoriteListDAO.clearFavorites()
 
         result =
-            (favoriteListDAO.getFavoriteComicsList(LIMIT).create() as LimitOffsetDataSource).loadRange(
+            (favoriteListDAO.getFavoriteComicsList().create() as LimitOffsetDataSource).loadRange(
                 0,
                 LIMIT
             )

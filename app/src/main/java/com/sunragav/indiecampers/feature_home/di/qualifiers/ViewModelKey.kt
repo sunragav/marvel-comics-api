@@ -1,4 +1,4 @@
-package com.sunragav.indiecampers.marvelcomics.di.qualifiers
+package com.sunragav.indiecampers.feature_home.di.qualifiers
 
 import androidx.lifecycle.ViewModel
 import dagger.MapKey

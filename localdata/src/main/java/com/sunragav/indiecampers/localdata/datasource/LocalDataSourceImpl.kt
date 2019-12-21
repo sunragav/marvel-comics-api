@@ -3,6 +3,7 @@ package com.sunragav.indiecampers.localdata.datasource
 import androidx.paging.DataSource
 import com.sunragav.indiecampers.home.data.repository.LocalRepository
 import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
+import com.sunragav.indiecampers.home.domain.qualifiers.Background
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction
 import com.sunragav.indiecampers.localdata.db.ComicsListDAO
 import com.sunragav.indiecampers.localdata.db.FavoriteComicsDAO
@@ -12,6 +13,7 @@ import com.sunragav.indiecampers.localdata.mapper.ComicsLocalMapper
 import com.sunragav.indiecampers.localdata.models.Request
 import io.reactivex.Completable
 import io.reactivex.Observable
+import io.reactivex.Scheduler
 import io.reactivex.schedulers.Schedulers
 import java.util.*
 import javax.inject.Inject
@@ -21,7 +23,8 @@ class LocalDataSourceImpl @Inject constructor(
     private val comicsFavoritesMapper: ComicsFavoritesMapper,
     private val comicsListDAO: ComicsListDAO,
     private val favoriteComicsDAO: FavoriteComicsDAO,
-    private val requestDoa: RequestTrackerDao
+    private val requestDoa: RequestTrackerDao,
+    @Background private val backgroundThread:Scheduler
 ) : LocalRepository {
     override fun insert(
         comicsEntityList: List<ComicsEntity>
@@ -65,7 +68,7 @@ class LocalDataSourceImpl @Inject constructor(
 
     override fun getPreviousRequest(): GetComicsListAction.Params {
         val request: Request =
-            Observable.fromCallable { requestDoa.getRequest() }.subscribeOn(Schedulers.io())
+            Observable.fromCallable { requestDoa.getRequest() }.subscribeOn(backgroundThread)
                 .onErrorReturn {
                     Request(
                         id = 0,

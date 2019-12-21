@@ -1,6 +1,5 @@
 package com.sunragav.indiecampers.home.domain.usecases
 
-import com.jakewharton.rxrelay2.BehaviorRelay
 import com.sunragav.indiecampers.home.domain.entities.NetworkState
 import com.sunragav.indiecampers.home.domain.repositories.ComicsDataRepository
 import io.mockk.mockk
@@ -22,8 +21,7 @@ class GetComicsListActionTest {
     companion object {
         private val query = GetComicsListAction.Params(
             searchKey = "123",
-            flagged = false,
-            networkState = BehaviorRelay.create()
+            flagged = false
         )
         private const val ERROR = "Network Error occurred"
     }
@@ -37,9 +35,7 @@ class GetComicsListActionTest {
     fun setup() {
         MockitoAnnotations.initMocks(this)
         getComicsListAction = GetComicsListAction(
-            comicsDataRepository,
-            Schedulers.trampoline(),
-            Schedulers.trampoline()
+            comicsDataRepository
         )
     }
 
@@ -56,20 +52,13 @@ class GetComicsListActionTest {
         ).thenReturn(result)
 
 
-        val testObserver = getComicsListAction.buildUseCase(
+        getComicsListAction.getComicsListActionResult(
             query
-        ).test()
-        testObserver.assertSubscribed()
-            .assertValue { it == result }
-            .assertComplete()
+        )
+
 
         verify(comicsDataRepository, times(1)).getComicsList(query)
 
-        query.networkState.accept(NetworkState.LOADED)
-        val networkStateObserver = TestObserver.create<NetworkState>()
-        query.networkState.subscribe(networkStateObserver)
-        networkStateObserver.assertSubscribed()
-        networkStateObserver.assertValue(NetworkState.LOADED)
 
     }
 

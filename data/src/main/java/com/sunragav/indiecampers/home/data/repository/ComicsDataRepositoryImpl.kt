@@ -9,7 +9,6 @@ import com.sunragav.indiecampers.home.domain.qualifiers.Foreground
 import com.sunragav.indiecampers.home.domain.repositories.ComicsDataRepository
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction.GetComicsListActionResult
-import com.sunragav.indiecampers.utils.ConnectivityState
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Scheduler
@@ -22,7 +21,6 @@ class ComicsDataRepositoryImpl @Inject constructor(
     val disposable: CompositeDisposable,
     val localRepository: LocalRepository,
     val remoteRepository: RemoteRepository,
-    val connectivityState: ConnectivityState,
     val networkStateRelay: NetworkStateRelay,
     @Foreground val foregroundScheduler: Scheduler,
     @Background val backgroundScheduler: Scheduler
@@ -82,22 +80,20 @@ class ComicsDataRepositoryImpl @Inject constructor(
                             .subscribeOn(backgroundScheduler)
                             .observeOn(backgroundScheduler)
                             .subscribe {
-                            lastRequestedPage++
-                            isRequestInProgress = false
-                            localRepository.updateRequest(query.copy(offset = lastRequestedPage))
-                        }
-
-                        Observable.fromCallable {
-                            networkStateRelay.relay.accept(NetworkState.LOADED)
-                        }.subscribeOn(foregroundScheduler).observeOn(foregroundScheduler)
-                            .subscribe()
-
-
+                                lastRequestedPage++
+                                isRequestInProgress = false
+                                localRepository.updateRequest(query.copy(offset = lastRequestedPage))
+                                Observable.fromCallable {
+                                    networkStateRelay.relay.accept(NetworkState.LOADED)
+                                }.subscribeOn(foregroundScheduler)
+                                    .retry(1)
+                                    .subscribe()
+                            }
                     },
                     { error ->
                         Observable.fromCallable {
                             networkStateRelay.relay.accept(NetworkState.error(error.localizedMessage))
-                        }.subscribeOn(foregroundScheduler).observeOn(foregroundScheduler)
+                        }.subscribeOn(foregroundScheduler)
                             .subscribe()
                         isRequestInProgress = false
                     })

@@ -11,6 +11,7 @@
     </data>
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/card_view_item_comics"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
@@ -33,7 +34,7 @@
                 android:layout_marginBottom="8dp"
                 android:contentDescription="@string/comics_image"
                 android:elevation="@dimen/card_view_elevation"
-                android:scaleType="centerCrop"
+                android:scaleType="fitXY"
                 app:imageUrl="@{comicsUiModelObserver.imageUrl}"
                 app:layout_constraintBottom_toTopOf="parent"
                 app:layout_constraintCircleRadius="@dimen/card_view_radius"

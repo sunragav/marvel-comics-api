@@ -12,6 +12,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert.assertNotNull
@@ -23,21 +24,28 @@ class NetworkDataSourceTest {
 
     private var comicsService: ComicsService = mockk()
     private val comicsRemoteMapper = ComicsRemoteMapper()
-    private lateinit var networkDatasource: NetworkDataSource
+    private lateinit var networkDataSource: NetworkDataSource
     private val hashGenerator = HashGeneratorImpl()
     @Before
     fun setUp() {
-        networkDatasource = NetworkDataSource(comicsService, comicsRemoteMapper, hashGenerator)
+        networkDataSource = NetworkDataSource(
+            comicsService=comicsService,
+            comicsRemoteMapper = comicsRemoteMapper,
+            hashGenerator = hashGenerator,
+            publicKey = "",
+            privateKey = "",
+            backgroundThread = Schedulers.trampoline())
     }
 
     @Test
-    fun test_getComicsList_success() {
+    fun test_getComicsList_with_query_success() {
         val dataWrapper = getDataWrapper()
         val comicsList = getComicsList()
         var result: List<ComicsEntity>? = null
         var error: Throwable? = null
+
         every {
-            comicsService.getComicsList(
+            comicsService.getComicsListStartsWithTitle(
                 any(),
                 any(),
                 any(),
@@ -46,23 +54,25 @@ class NetworkDataSourceTest {
             )
         } returns (Single.just(dataWrapper))
 
-        networkDatasource.getComicsList("id", 0, 20, { result = it }) { error = it }
 
-        verify { comicsService.getComicsList(any(), any(), any(), any(), any()) }
+        networkDataSource.getComicsList("id", 0, 20).subscribe({result=it},{error=it})
+
+        verify { comicsService.getComicsListStartsWithTitle(any(), any(), any(), any(),any()) }
         assertThat(
             result?.zip(comicsList)?.all { it.first == comicsRemoteMapper.from(it.second) },
             equalTo(true)
         )
         assertNull(error)
+        assertNotNull(result)
     }
 
     @Test
-    fun test_getComicsList_failure() {
+    fun test_getComicsList_with_query_failure() {
         val exception = Throwable("Network Error!!")
         var result: List<ComicsEntity>? = null
         var error: Throwable? = null
         every {
-            comicsService.getComicsList(
+            comicsService.getComicsListStartsWithTitle(
                 any(),
                 any(),
                 any(),
@@ -71,13 +81,62 @@ class NetworkDataSourceTest {
             )
         } returns (Single.error(exception))
 
-        networkDatasource.getComicsList("id", 0, 20, { result = it }) { error = it }
+        networkDataSource.getComicsList("id", 0, 20).subscribe({result=it},{error =it})
 
-        verify { comicsService.getComicsList(any(), any(), any(), any(), any()) }
+        verify { comicsService.getComicsListStartsWithTitle(any(), any(), any(), any(),any()) }
         assertNotNull(error)
         assertNull(result)
     }
 
+    @Test
+    fun test_getComicsList_with_out_query_success() {
+        val dataWrapper = getDataWrapper()
+        val comicsList = getComicsList()
+        var result: List<ComicsEntity>? = null
+        var error: Throwable? = null
+
+        every {
+            comicsService.getAllComicsList(
+                any(),
+                any(),
+                any(),
+                any())
+        } returns (Single.just(dataWrapper))
+
+
+        networkDataSource.getComicsList("", 0, 20).subscribe({result=it},{error=it})
+
+        verify { comicsService.getAllComicsList(any(), any(), any(), any()) }
+        assertThat(
+            result?.zip(comicsList)?.all { it.first == comicsRemoteMapper.from(it.second) },
+            equalTo(true)
+        )
+        assertNull(error)
+        assertNotNull(result)
+    }
+
+    @Test
+    fun test_getComicsList_with_out_query_failure() {
+        val exception = Throwable("Network Error!!")
+        var result: List<ComicsEntity>? = null
+        var error: Throwable? = null
+
+        every {
+            comicsService.getAllComicsList(
+                any(),
+                any(),
+                any(),
+                any())
+        } returns (Single.error(exception))
+
+
+        networkDataSource.getComicsList("", 0, 20).subscribe({result=it},{error=it})
+
+        verify { comicsService.getAllComicsList(any(), any(), any(), any()) }
+
+        assertNotNull(error)
+        assertNull(result)
+    }
 
     @Test
     fun test_getComicsById_success() {
@@ -92,7 +151,7 @@ class NetworkDataSourceTest {
             )
         } returns (Observable.just(getDataWrapper(listOf(comic))))
 
-        networkDatasource.getComicsById("some key").test()
+        networkDataSource.getComicsById("some key").test()
             .assertSubscribed()
             .assertValue { it == comicsRemoteMapper.from(comic) }
             .assertNoErrors()
@@ -113,7 +172,7 @@ class NetworkDataSourceTest {
             )
         } returns (Observable.error(Throwable(message)))
 
-        networkDatasource.getComicsById("some key").test()
+        networkDataSource.getComicsById("some key").test()
             .assertSubscribed()
             .assertError { it.message == message }
             .assertNotComplete()

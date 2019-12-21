@@ -1,2 +1,2 @@
-include ':app', ':domain', ':presentation', ':data', ':utils', ':localdata', ':remotedata', ':core-ui-utils', ':feature-home'
+include ':app', ':domain', ':presentation', ':data', ':utils', ':localdata', ':remotedata', ':feature-home'
 rootProject.name='MarvelComics'

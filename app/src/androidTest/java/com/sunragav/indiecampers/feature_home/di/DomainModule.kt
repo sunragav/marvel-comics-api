@@ -1,4 +1,4 @@
-package com.sunragav.indiecampers.marvelcomics.di
+package com.sunragav.indiecampers.feature_home.di
 
 import com.sunragav.indiecampers.home.domain.qualifiers.Background
 import com.sunragav.indiecampers.home.domain.qualifiers.Foreground
@@ -10,20 +10,21 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Singleton
 
+
 @Module
 class DomainModule {
     @Singleton
     @Provides
     @Background
     fun providesBackgroundScheduler(): Scheduler {
-        return Schedulers.io()
+        return Schedulers.trampoline()
     }
 
     @Singleton
     @Provides
     @Foreground
     fun providesForegroundScheduler(): Scheduler {
-        return AndroidSchedulers.mainThread()
+        return Schedulers.trampoline()
     }
 
     @Singleton

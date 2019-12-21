@@ -11,7 +11,6 @@ import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.paging.PagedList
@@ -26,7 +25,6 @@ import com.sunragav.indiecampers.home.domain.entities.NetworkState
 import com.sunragav.indiecampers.home.domain.entities.NetworkStateRelay
 import com.sunragav.indiecampers.home.presentation.factory.ComicsViewModelFactory
 import com.sunragav.indiecampers.home.presentation.viewmodels.HomeVM
-import com.sunragav.indiecampers.utils.ConnectivityState
 import dagger.android.support.AndroidSupportInjection
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
@@ -42,24 +40,18 @@ class ComicsListFeatureActivityFragment : Fragment() {
     lateinit var disposable: CompositeDisposable
 
     @Inject
-    lateinit var connectivityState: ConnectivityState
-    @Inject
     lateinit var networkStateRelay: NetworkStateRelay
 
 
     private lateinit var comicsListAdapter: ComicsPagedListAdapter
 
-    private var prevChildLivedata: LiveData<PagedList<ComicsEntity>>? = null
 
-    private var prevMasterLivedata: LiveData<LiveData<PagedList<ComicsEntity>>>? = null
+    private var query: String = ""
 
-    var query: String = ""
-    var prevNetworkState: NetworkState = NetworkState.EMPTY
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         AndroidSupportInjection.inject(this)
-
     }
 
     override fun onCreateView(
@@ -78,6 +70,7 @@ class ComicsListFeatureActivityFragment : Fragment() {
         binding.rvComicsList.layoutManager = GridLayoutManager(activity, 1)
         binding.rvComicsList.setHasFixedSize(true)
 
+        query = savedInstanceState?.getString(LAST_SEARCH_QUERY) ?: DEFAULT_QUERY
 
         activity?.let {
             viewModel = ViewModelProviders.of(it, viewModelFactory).get(HomeVM::class.java)
@@ -88,8 +81,6 @@ class ComicsListFeatureActivityFragment : Fragment() {
 
         initAdapter(binding)
         initListeners()
-        query = savedInstanceState?.getString(LAST_SEARCH_QUERY) ?: DEFAULT_QUERY
-        //viewModel.search(query)
         initSearch()
         return binding.root
     }
@@ -103,35 +94,26 @@ class ComicsListFeatureActivityFragment : Fragment() {
         comicsListAdapter.submitList(pagedList)
         comicsListAdapter.notifyDataSetChanged()
 
-
-    }
-
-    private val liveDataObserver = Observer<LiveData<PagedList<ComicsEntity>>> {
-        // prevChildLivedata?.removeObserver(pagedListLiveDataObserver)
-        it.observe(this, pagedListLiveDataObserver)
-        prevChildLivedata = it
-
     }
 
     private fun initListeners() {
-        prevChildLivedata?.removeObservers(this)
         viewModel.comicsListSource.observe(this, pagedListLiveDataObserver)
-        prevChildLivedata = viewModel.comicsListSource
         val subscription =
             networkStateRelay.relay.subscribe {
                 when (it) {
                     NetworkState.LOADING -> viewModel.isLoading.set(true)
-                    NetworkState.LOADED -> viewModel.isLoading.set(false)
+                    NetworkState.LOADED -> {
+                        viewModel.isLoading.set(false)
+                    }
                     NetworkState.DISCONNECTED -> {
                         Toast.makeText(
                             activity,
                             "\uD83D\uDE28 Oops!! Network Connection lost!!",
                             Toast.LENGTH_LONG
                         )
-                        viewModel.isLoading.set(false)
                     }
                     NetworkState.CONNECTED -> {
-                        if (prevNetworkState == NetworkState.LOADING) {
+                        if (viewModel.isLoading.get() == true) {
                             viewModel.search(query)
                         }
                     }
@@ -148,7 +130,6 @@ class ComicsListFeatureActivityFragment : Fragment() {
                         viewModel.search(query)
                     }
                 }
-                prevNetworkState = it
             }
         subscription?.let { disposable.add(it) }
     }
@@ -182,11 +163,13 @@ class ComicsListFeatureActivityFragment : Fragment() {
 
     private fun updateComicsListFromInput() {
         binding.searchComics.text.trim().let {
-            // binding.rvComicsList.scrollToPosition(0)
-            viewModel.search(it.toString())
-            comicsListAdapter.submitList(null)
-            comicsListAdapter.notifyDataSetChanged()
-            binding.rvComicsList.recycledViewPool.clear()
+            if (it.isNotEmpty()) {
+                // binding.rvComicsList.scrollToPosition(0)
+                viewModel.search(it.toString())
+                comicsListAdapter.submitList(null)
+                comicsListAdapter.notifyDataSetChanged()
+                binding.rvComicsList.recycledViewPool.clear()
+            }
         }
     }
 
@@ -213,6 +196,6 @@ class ComicsListFeatureActivityFragment : Fragment() {
 
     companion object {
         private const val LAST_SEARCH_QUERY: String = "last_search_query"
-        private const val DEFAULT_QUERY = ""
+        private const val DEFAULT_QUERY = "Avengers"
     }
 }

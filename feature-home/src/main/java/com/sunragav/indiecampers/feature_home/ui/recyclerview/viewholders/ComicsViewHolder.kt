@@ -7,7 +7,7 @@ import com.sunragav.indiecampers.feature_home.ui.mapper.ComicsUIEntityMapper
 import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
 import com.sunragav.indiecampers.home.presentation.viewmodels.HomeVM
 
-class ComicsViewHolder(private val binding: ItemViewBinding) :
+class ComicsViewHolder( val binding: ItemViewBinding) :
     RecyclerView.ViewHolder(binding.root) {
     fun bind(
         comicsEntity: ComicsEntity,

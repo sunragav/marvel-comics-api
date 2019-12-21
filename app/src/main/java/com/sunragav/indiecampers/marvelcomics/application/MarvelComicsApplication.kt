@@ -1,6 +1,6 @@
 package com.sunragav.indiecampers.marvelcomics.application
 
-import com.sunragav.indiecampers.marvelcomics.di.DaggerMarvelComicsAppComponent
+import com.sunragav.indiecampers.feature_home.di.DaggerMarvelComicsAppComponent
 import dagger.android.AndroidInjector
 import dagger.android.DaggerApplication
 

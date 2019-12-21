@@ -30,9 +30,3 @@ data class Image(
     val path: String,
     val extension: String
 )
-
-
-data class Url(
-    val type: String,
-    val url: String
-)

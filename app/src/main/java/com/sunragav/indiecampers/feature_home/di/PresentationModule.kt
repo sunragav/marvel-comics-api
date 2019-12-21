@@ -1,4 +1,4 @@
-package com.sunragav.indiecampers.marvelcomics.di
+package com.sunragav.indiecampers.feature_home.di
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -7,7 +7,7 @@ import com.sunragav.indiecampers.home.presentation.factory.ComicsViewModelFactor
 import com.sunragav.indiecampers.home.presentation.mapper.ComicsEntityMapper
 import com.sunragav.indiecampers.home.presentation.models.Comics
 import com.sunragav.indiecampers.home.presentation.viewmodels.HomeVM
-import com.sunragav.indiecampers.marvelcomics.di.qualifiers.ViewModelKey
+import com.sunragav.indiecampers.feature_home.di.qualifiers.ViewModelKey
 import com.sunragav.indiecampers.utils.Mapper
 import dagger.Binds
 import dagger.Module

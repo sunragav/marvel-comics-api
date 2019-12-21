@@ -1,4 +1,4 @@
-package com.sunragav.indiecampers.marvelcomics.di
+package com.sunragav.indiecampers.feature_home.di
 
 import com.sunragav.indiecampers.home.data.repository.ComicsDataRepositoryImpl
 import com.sunragav.indiecampers.home.domain.repositories.ComicsDataRepository

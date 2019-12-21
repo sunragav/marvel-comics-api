@@ -73,7 +73,6 @@ open class HomeVM @Inject internal constructor(
                                 .setBoundaryCallback(boundaryCallback)
                                 .build()
                         )
-
                     }
                 }
             }

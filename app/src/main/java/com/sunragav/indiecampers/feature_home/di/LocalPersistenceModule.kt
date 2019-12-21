@@ -1,4 +1,4 @@
-package com.sunragav.indiecampers.marvelcomics.di
+package com.sunragav.indiecampers.feature_home.di
 
 import android.app.Application
 import com.sunragav.indiecampers.home.data.repository.LocalRepository
