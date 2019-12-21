@@ -69,6 +69,7 @@ class RemoteModule {
         return OkHttpClient.Builder()
             .addInterceptor(httpLoggingInterceptor)
             .addInterceptor(ApiKeyInterceptor(BuildConfig.PUBLIC_KEY))
+            .cache(null)
             .connectTimeout(60, TimeUnit.SECONDS)
             .readTimeout(60, TimeUnit.SECONDS)
             .writeTimeout(60, TimeUnit.SECONDS).build()

@@ -96,10 +96,12 @@ class ComicsListFeatureActivityFragment : Fragment() {
     private val pagedListLiveDataObserver = Observer<PagedList<ComicsEntity>> { pagedList ->
         Log.d(
             "ComicsListFeatureActivityFragment",
-            "Current paged list size: ${pagedList?.size}"
+            "Current paged list size: ${pagedList?.size} query= $query"
         )
         showEmptyList(pagedList?.size == 0)
         comicsListAdapter.submitList(pagedList)
+        comicsListAdapter.notifyDataSetChanged()
+
 
     }
 
@@ -111,9 +113,7 @@ class ComicsListFeatureActivityFragment : Fragment() {
     }
 
     private fun initListeners() {
-        //viewModel.comicsListSource.observe(this, liveDataObserver)
-        //  prevMasterLivedata = viewModel.comicsListSource
-        prevChildLivedata?.removeObserver(pagedListLiveDataObserver)
+        prevChildLivedata?.removeObservers(this)
         viewModel.comicsListSource.observe(this, pagedListLiveDataObserver)
         prevChildLivedata = viewModel.comicsListSource
         val subscription =
@@ -172,9 +172,11 @@ class ComicsListFeatureActivityFragment : Fragment() {
 
     private fun updateComicsListFromInput() {
         binding.searchComics.text.trim().let {
-            binding.rvComicsList.scrollToPosition(0)
+            // binding.rvComicsList.scrollToPosition(0)
             viewModel.search(it.toString())
             comicsListAdapter.submitList(null)
+            comicsListAdapter.notifyDataSetChanged()
+            binding.rvComicsList.recycledViewPool.clear()
         }
     }
 

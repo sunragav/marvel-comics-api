@@ -33,7 +33,7 @@ class NetworkDataSource @Inject constructor(
             limit = limit
         ).subscribeOn(Schedulers.io())
             .map {
-                it.data.results.filter(::isValid).map { comic ->
+                it.data.results.map { comic ->
                     comicsRemoteMapper.from(
                         comic
                     )

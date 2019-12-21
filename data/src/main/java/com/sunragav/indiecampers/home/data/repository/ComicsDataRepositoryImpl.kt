@@ -4,12 +4,15 @@ import androidx.paging.PagedList
 import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
 import com.sunragav.indiecampers.home.domain.entities.NetworkState
 import com.sunragav.indiecampers.home.domain.entities.NetworkStateRelay
+import com.sunragav.indiecampers.home.domain.qualifiers.Background
+import com.sunragav.indiecampers.home.domain.qualifiers.Foreground
 import com.sunragav.indiecampers.home.domain.repositories.ComicsDataRepository
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction.GetComicsListActionResult
 import com.sunragav.indiecampers.utils.ConnectivityState
 import io.reactivex.Completable
 import io.reactivex.Observable
+import io.reactivex.Scheduler
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -20,7 +23,9 @@ class ComicsDataRepositoryImpl @Inject constructor(
     val localRepository: LocalRepository,
     val remoteRepository: RemoteRepository,
     val connectivityState: ConnectivityState,
-    val networkStateRelay: NetworkStateRelay
+    val networkStateRelay: NetworkStateRelay,
+    @Foreground val foregroundScheduler: Scheduler,
+    @Background val backgroundScheduler: Scheduler
 ) : ComicsDataRepository {
 
     override fun getComics(query: String): Observable<ComicsEntity> {
@@ -76,7 +81,7 @@ class ComicsDataRepositoryImpl @Inject constructor(
                     query.searchKey,
                     lastRequestedPage,
                     query.limit
-                ).subscribe(
+                ).subscribeOn(backgroundScheduler).observeOn(backgroundScheduler).subscribe(
                     { comicsList ->
                         println("Loaded page$lastRequestedPage offset:${lastRequestedPage * query.limit}")
                         localRepository.insert(comicsList).subscribe {
