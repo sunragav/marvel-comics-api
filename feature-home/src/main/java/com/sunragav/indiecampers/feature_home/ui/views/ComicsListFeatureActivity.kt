@@ -34,6 +34,8 @@ class ComicsListFeatureActivity : AppCompatActivity() {
 
     private var alreadyNavigatedToComicsDetailFragment = false
 
+    private var isTablet = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
@@ -46,7 +48,7 @@ class ComicsListFeatureActivity : AppCompatActivity() {
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(HomeVM::class.java)
 
-        val isTablet = resources.getBoolean(R.bool.isTablet)
+        isTablet = resources.getBoolean(R.bool.isTablet)
 
         when {
             isTablet -> {
@@ -70,6 +72,12 @@ class ComicsListFeatureActivity : AppCompatActivity() {
         }
 
 
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        if (isTablet)
+            finish()
     }
 
     override fun onDestroy() {

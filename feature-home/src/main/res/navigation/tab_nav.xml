@@ -2,13 +2,39 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/tab_nav"
-    app:startDestination="@id/comicsDetailFragment">
+    app:startDestination="@id/emptyFragment">
     <fragment
         android:id="@+id/emptyFragment"
         android:name="com.sunragav.indiecampers.feature_home.ui.views.EmptyFragment"
-        android:label="EmptyFragment" />
+        app:launchSingleTop="true"
+        app:popUpToInclusive="true"
+        android:label="EmptyFragment" >
+        <action
+            android:id="@+id/action_emptyFragment_pop"
+            app:destination="@+id/tab_nav"
+            app:launchSingleTop="true"
+            app:popUpTo="@+id/tab_nav"
+            app:popUpToInclusive="true" />
+    </fragment>
     <fragment
         android:id="@+id/comicsDetailFragment"
         android:name="com.sunragav.indiecampers.feature_home.ui.views.ComicsDetailFragment"
-        android:label="ComicsDetailFragment" />
+        app:launchSingleTop="true"
+        app:popUpTo="@+id/tab_nav"
+        app:popUpToInclusive="true"
+        android:label="ComicsDetailFragment" >
+        <action
+            android:id="@+id/action_comicsDetailFragment_pop"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popUpTo="@id/comicsDetailFragment"
+            app:popUpToInclusive="true"
+            app:popExitAnim="@anim/nav_default_exit_anim"
+            app:launchSingleTop="true" />
+        <action
+            android:id="@+id/action_comicsDetailFragment_pop2"
+            app:destination="@+id/tab_nav"
+            app:launchSingleTop="true"
+            app:popUpTo="@+id/tab_nav"
+            app:popUpToInclusive="true" />
+    </fragment>
 </navigation>
