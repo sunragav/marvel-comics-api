@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/tab_nav"
+    app:startDestination="@id/comicsDetailFragment">
+    <fragment
+        android:id="@+id/emptyFragment"
+        android:name="com.sunragav.indiecampers.feature_home.ui.views.EmptyFragment"
+        android:label="EmptyFragment" />
+    <fragment
+        android:id="@+id/comicsDetailFragment"
+        android:name="com.sunragav.indiecampers.feature_home.ui.views.ComicsDetailFragment"
+        android:label="ComicsDetailFragment" />
+</navigation>

@@ -7,9 +7,9 @@ abstract class ObservableUseCase<T, in Input> constructor(
     protected val backgroundScheduler: Scheduler,
     protected val foregroundScheduler: Scheduler
 ) {
-    protected abstract fun generateObservable(input: Input? = null): Observable<T>
+    protected abstract fun generateObservable(input: Input): Observable<T>
 
-    fun buildUseCase(input: Input? = null): Observable<T> {
+    fun buildUseCase(input: Input): Observable<T> {
         return generateObservable(input)
             .subscribeOn(backgroundScheduler)
             .observeOn(foregroundScheduler)

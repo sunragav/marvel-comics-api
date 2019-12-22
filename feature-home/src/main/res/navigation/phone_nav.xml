@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/masterdetail"
+    app:startDestination="@id/comicsListFeatureActivityFragment">
+    <fragment
+        android:id="@+id/comicsListFeatureActivityFragment"
+        android:name="com.sunragav.indiecampers.feature_home.ui.views.ComicsListFeatureActivityFragment"
+        android:label="ComicsListFeatureActivityFragment">
+        <action
+            android:id="@+id/action_comicsListFeatureActivityFragment_to_comicsDetailFragment"
+            app:destination="@id/comicsDetailFragment" />
+        <argument
+            android:name="id"
+            app:argType="string"
+            android:defaultValue="2" />
+    </fragment>
+    <fragment
+        android:id="@+id/comicsDetailFragment"
+        android:name="com.sunragav.indiecampers.feature_home.ui.views.ComicsDetailFragment"
+        android:label="ComicsDetailFragment" />
+</navigation>

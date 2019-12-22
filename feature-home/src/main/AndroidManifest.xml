@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.sunragav.indiecampers.feature_home">
+
+    <application>
+        <activity
+            android:name=".ui.views.ComicsListFeatureActivity"
+            android:label="@string/title_activity_comics_list_feature"
+            android:theme="@style/AppTheme.NoActionBar" />
+    </application>
+
+</manifest>

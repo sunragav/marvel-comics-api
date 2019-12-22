@@ -1,8 +1,7 @@
 package com.sunragav.indiecampers.home.domain.usecases
 
-import com.jakewharton.rxrelay2.BehaviorRelay
 import com.sunragav.indiecampers.home.domain.entities.NetworkState
-import com.sunragav.indiecampers.home.domain.repositories.ComicsRepository
+import com.sunragav.indiecampers.home.domain.repositories.ComicsDataRepository
 import io.mockk.mockk
 import io.reactivex.observers.TestObserver
 import io.reactivex.schedulers.Schedulers
@@ -30,73 +29,38 @@ class GetComicsListActionTest {
     private lateinit var getComicsListAction: GetComicsListAction
 
     @Mock
-    lateinit var comicsRepository: ComicsRepository
+    lateinit var comicsDataRepository: ComicsDataRepository
 
     @Before
     fun setup() {
         MockitoAnnotations.initMocks(this)
         getComicsListAction = GetComicsListAction(
-            comicsRepository,
-            Schedulers.trampoline(),
-            Schedulers.trampoline()
+            comicsDataRepository
         )
     }
 
     @Test
-    fun test_getComicsAction_Success() {
-        val networkState: BehaviorRelay<NetworkState> = BehaviorRelay.create()
+    fun test_getComicsListAction_Success() {
 
         val result =
-            GetComicsListAction.GetComicsListActionResult(mockk(), mockk(), networkState)
+            GetComicsListAction.GetComicsListActionResult(mockk(), mockk())
 
         Mockito.`when`(
-            comicsRepository.getComicsList(
+            comicsDataRepository.getComicsList(
                 query
             )
         ).thenReturn(result)
 
 
-        val testObserver = getComicsListAction.buildUseCase(
+        getComicsListAction.getComicsListActionResult(
             query
-        ).test()
-        testObserver.assertSubscribed()
-            .assertValue { it == result }
-            .assertComplete()
+        )
 
-        verify(comicsRepository, times(1)).getComicsList(query)
-        networkState.accept(NetworkState.LOADED)
-        val networkStateObserver = TestObserver.create<NetworkState>()
-        networkState.subscribe(networkStateObserver)
-        networkStateObserver.assertSubscribed()
-        networkStateObserver.assertValue(NetworkState.LOADED)
+
+        verify(comicsDataRepository, times(1)).getComicsList(query)
+
 
     }
 
-    @Test
-    fun test_getComicsAction_Error() {
-        val networkState: BehaviorRelay<NetworkState> = BehaviorRelay.create()
-        networkState.accept(NetworkState.ERROR)
-        val result =
-            GetComicsListAction.GetComicsListActionResult(mockk(), mockk(), networkState)
-        Mockito.`when`(
-            comicsRepository.getComicsList(
-                query
-            )
-        ).thenReturn(result)
-
-        val testObserver = getComicsListAction.buildUseCase(
-            query
-        ).test()
-
-        testObserver.assertSubscribed()
-            .assertValue {
-                it.networkState == networkState
-            }
-            .assertComplete()
-        val networkStateObserver = TestObserver.create<NetworkState>()
-        networkState.subscribe(networkStateObserver)
-        networkStateObserver.assertSubscribed()
-        networkStateObserver.assertValue(NetworkState.ERROR)
-    }
 }
 

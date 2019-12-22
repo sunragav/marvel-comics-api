@@ -1,2 +1,2 @@
-include ':app', ':domain', ':presentation', ':data'
+include ':app', ':domain', ':presentation', ':data', ':utils', ':localdata', ':remotedata', ':feature-home', ':android-utils'
 rootProject.name='MarvelComics'

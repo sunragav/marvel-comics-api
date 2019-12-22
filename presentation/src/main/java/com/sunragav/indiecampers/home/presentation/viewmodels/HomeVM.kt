@@ -1,62 +1,75 @@
 package com.sunragav.indiecampers.home.presentation.viewmodels
 
 
+import androidx.databinding.ObservableField
 import androidx.lifecycle.*
-import androidx.paging.DataSource
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
-import com.jakewharton.rxrelay2.BehaviorRelay
 import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
-import com.sunragav.indiecampers.home.domain.entities.NetworkState
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction
-import com.sunragav.indiecampers.home.domain.usecases.UpdateComicsAction
-import com.sunragav.indiecampers.home.presentation.mapper.Mapper
-import com.sunragav.indiecampers.home.presentation.models.Comics
-import io.reactivex.BackpressureStrategy
-import io.reactivex.disposables.CompositeDisposable
+import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction.Params
+import kotlinx.coroutines.*
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
 open class HomeVM @Inject internal constructor(
-    private val comicsMapper: Mapper<ComicsEntity, Comics>,
-    private val getComicsListAction: GetComicsListAction,
-    private val updateComicsAction: UpdateComicsAction
-) : ViewModel() {
+    private val getComicsListAction: GetComicsListAction
+) : ViewModel(), CoroutineScope {
     companion object {
-        const val LIMIT = 40
+        private const val LIMIT = 20
     }
 
-    private lateinit var dataSource: DataSource.Factory<Int, ComicsEntity>
-    private lateinit var boundaryCallback: PagedList.BoundaryCallback<ComicsEntity>
-    private val filterRequestLiveData = MutableLiveData<GetComicsListAction.Params>()
-    private var filterRequest = GetComicsListAction.Params()
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + viewModelJob
+    private val viewModelJob = SupervisorJob()
+    private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
+    private val bgScope = Dispatchers.IO
 
+    private val filterRequestLiveData = MutableLiveData<Params>()
 
-    private val disposables = CompositeDisposable()
-    private val comicsListMediator = MediatorLiveData<PagedList<ComicsEntity>>()
+    private val defaultComics = ComicsEntity(
+        id = "default",
+        title = "",
+        description = "",
+        thumbNail = "",
+        imageUrls = emptyList(),
+        flagged = false
+    )
+
+    var currentComics = MutableLiveData<ComicsEntity>()
+
+    private var filterRequest = Params(limit = LIMIT)
+    val isLoading = ObservableField<Boolean>()
+
+    fun lastSearchQuery() = filterRequestLiveData.value?.searchKey
+
+    private val pagingConfig = PagedList.Config.Builder()
+        .setEnablePlaceholders(true)
+        .setInitialLoadSizeHint(LIMIT)
+        .setPageSize(LIMIT)
+        .build()
+
 
     val comicsListSource: LiveData<PagedList<ComicsEntity>>
-        get() = comicsListMediator
-    var networkState: BehaviorRelay<NetworkState> = BehaviorRelay.create()
+        get() = Transformations.switchMap(filterRequestMediator) { it }
 
-
-    private val filteredComicsBySearchKey =
-        Transformations.switchMap(filterRequestLiveData) { input ->
-            getComicsListAction.buildUseCase(input)
-                .map {
-                    disposables.add(it.networkState.subscribe(networkState))
-                    dataSource = it.dataSource
-                    boundaryCallback = it.boundaryCallback
-                    dataSource
-                }
-                .toFlowable(BackpressureStrategy.LATEST)
-                .toLiveData()
-        }
+    private val filterRequestMediator = MediatorLiveData<LiveData<PagedList<ComicsEntity>>>()
 
 
     init {
-        networkState.accept(NetworkState.EMPTY)
-        comicsListMediator.addSource(filteredComicsBySearchKey) {
-            comicsListMediator.value = LivePagedListBuilder(it, LIMIT).build().value
+        currentComics.value = defaultComics
+        filterRequestMediator.addSource(filterRequestLiveData) { param ->
+            uiScope.launch {
+                withContext(bgScope) {
+                    with(getComicsListAction.getComicsListActionResult(param)) {
+                        filterRequestMediator.postValue(
+                            LivePagedListBuilder(dataSource, pagingConfig)
+                                .setBoundaryCallback(boundaryCallback)
+                                .build()
+                        )
+                    }
+                }
+            }
         }
     }
 
@@ -67,40 +80,4 @@ open class HomeVM @Inject internal constructor(
         )
         filterRequestLiveData.postValue(filterRequest)
     }
-
-    fun fetchComicsList(key: String) {
-        filterRequest = filterRequest.copy(
-            searchKey = key,
-            flagged = true
-        )
-        filterRequestLiveData.postValue(filterRequest)
-    }
-
-    fun toggleFlaggedStatus(comics: Comics) {
-        val newComics = comicsMapper.from(
-            comics.copy(
-                flagged = !comics.flagged /*toggled status*/
-            )
-        )
-        disposables.add(
-            updateComicsAction
-                .buildUseCase(newComics)
-                .onErrorComplete()
-                .subscribe()
-        )
-    }
-
-    private fun resetFilterOptions() {
-        filterRequest = filterRequest.copy(
-            searchKey = "",
-            flagged = false
-        )
-        filterRequestLiveData.postValue(filterRequest)
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        disposables.dispose()
-    }
-
 }
