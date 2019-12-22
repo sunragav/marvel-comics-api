@@ -6,7 +6,7 @@ import com.sunragav.indiecampers.home.presentation.models.Comics
 class TestDataContainer {
 
     companion object {
-        fun getComics(): Comics {
+        private fun getComics(): Comics {
             return Comics(
                 "143",
                 "Startling Stories: The Incorrigible Hulk (2004) #1",

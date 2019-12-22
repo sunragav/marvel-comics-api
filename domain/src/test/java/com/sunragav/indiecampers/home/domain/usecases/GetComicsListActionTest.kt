@@ -1,10 +1,7 @@
 package com.sunragav.indiecampers.home.domain.usecases
 
-import com.sunragav.indiecampers.home.domain.entities.NetworkState
 import com.sunragav.indiecampers.home.domain.repositories.ComicsDataRepository
 import io.mockk.mockk
-import io.reactivex.observers.TestObserver
-import io.reactivex.schedulers.Schedulers
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -23,7 +20,6 @@ class GetComicsListActionTest {
             searchKey = "123",
             flagged = false
         )
-        private const val ERROR = "Network Error occurred"
     }
 
     private lateinit var getComicsListAction: GetComicsListAction

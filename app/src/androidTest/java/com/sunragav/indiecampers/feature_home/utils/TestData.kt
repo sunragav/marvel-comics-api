@@ -31,7 +31,7 @@ val comic2 = comic1.copy(
     images = listOf(image2)
 )
 
-val container = DataContainer<List<Comic>>(
+val container = DataContainer(
     offset = 0,
     limit = 10,
     total = 2,

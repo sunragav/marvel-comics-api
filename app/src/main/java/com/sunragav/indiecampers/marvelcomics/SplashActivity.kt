@@ -9,7 +9,7 @@ import com.sunragav.indiecampers.feature_home.ui.views.ComicsListFeatureActivity
 
 class SplashActivity : AppCompatActivity() {
 
-    val mHandler = Handler()
+    private val mHandler = Handler()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)

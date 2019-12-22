@@ -16,8 +16,5 @@ class TestDataContainer {
                 true
             )
         }
-
-        fun getComicsList() =
-            listOf(getComics(), getComics().copy(id = "123"), getComics().copy(id = "134"))
     }
 }

@@ -26,7 +26,10 @@ fun setImageUrl(view: ImageView?, field: ObservableField<String>?) {
 
 @BindingAdapter("bigImageUrl")
 fun setBigImageUrl(view: ImageView?, field: ObservableField<String>?) {
-    setImageUrl(view, field, 1100, 1500)
+    if (view?.context?.resources?.getBoolean(R.bool.isTablet)==true)
+        setImageUrl(view, field, 1500, 1500)
+    else
+        setImageUrl(view, field, 1100, 1500)
 
 }
 
@@ -44,8 +47,7 @@ fun setImageUrl(view: ImageView?, field: ObservableField<String>?, width: Int, h
                     .encodeFormat(Bitmap.CompressFormat.PNG)
                     .override(width, height)
                     .format(DecodeFormat.PREFER_RGB_565)
-                    //.sizeMultiplier(0.5f)
-                   // .fitCenter()
+                    .sizeMultiplier(0.5f)
                     .placeholder(R.drawable.marvel_thumbnail)
             )
             .into(view)

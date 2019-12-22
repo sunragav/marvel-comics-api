@@ -1,20 +1,12 @@
 <resources>
-    <dimen name="fab_margin">16dp</dimen>
     <dimen name="detail_content_margin">0dp</dimen>
-    <dimen name="app_bar_height">200dp</dimen>
-    <dimen name="item_width">200dp</dimen>
-    <dimen name="text_margin">16dp</dimen>
 
     <dimen name="card_view_elevation">6dp</dimen>
     <dimen name="card_view_radius">6dp</dimen>
 
     <dimen name="row_item_margin_vertical">12dp</dimen>
-    <dimen name="row_item_margin_horizontal">12dp</dimen>
     <dimen name="comics_name_size">15sp</dimen>
     <dimen name="comics_description_size">12sp</dimen>
-    <dimen name="comics_icon_size">80dp</dimen>
     <dimen name="comics_icon_width">110dp</dimen>
     <dimen name="comics_icon_height">150dp</dimen>
-    <dimen name="loading_progress_bar_size">36dp</dimen>
-    <dimen name="placeholder_item_height">32dp</dimen>
 </resources>

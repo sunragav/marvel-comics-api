@@ -1,7 +1,6 @@
 package com.sunragav.indiecampers.home.presentation.viewmodels
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.sunragav.indiecampers.home.domain.entities.NetworkStateRelay
 import com.sunragav.indiecampers.home.domain.repositories.ComicsDataRepository
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction.GetComicsListActionResult
@@ -11,7 +10,6 @@ import com.sunragav.indiecampers.home.presentation.utils.TestDataContainer
 import com.sunragav.indiecampers.home.presentation.utils.observeOnce
 import io.mockk.every
 import io.mockk.mockk
-import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi

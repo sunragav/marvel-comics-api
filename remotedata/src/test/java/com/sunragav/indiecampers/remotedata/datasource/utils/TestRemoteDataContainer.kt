@@ -17,7 +17,7 @@ class TestRemoteDataContainer {
             return comicsRemoteMapper.to(getComicsEntity())
         }
 
-        fun getComicsEntity(): ComicsEntity {
+        private fun getComicsEntity(): ComicsEntity {
             return ComicsEntity(
                 "143",
                 "Startling Stories: The Incorrigible Hulk (2004) #1",
@@ -28,7 +28,7 @@ class TestRemoteDataContainer {
             )
         }
 
-        fun getComicsEntityList() =
+        private fun getComicsEntityList() =
             listOf(
                 getComicsEntity(),
                 getComicsEntity().copy(id = "123"),

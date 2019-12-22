@@ -28,19 +28,23 @@ class ConnectivityMonitorLiveData @Inject constructor(private val mContext: Cont
     override fun onActive() {
         super.onActive()
         updateConnection()
-        if (Build.VERSION.SDK_INT >= VERSION_CODES.N) {
-            connectivityManager.registerDefaultNetworkCallback(networkCallback)
-        } else if (Build.VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
-            val networkRequest = NetworkRequest.Builder()
-                .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
-                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-                .build()
-            connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
-        } else {
-            mContext.registerReceiver(
-                networkReceiver,
-                IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
-            )
+        when {
+            Build.VERSION.SDK_INT >= VERSION_CODES.N -> {
+                connectivityManager.registerDefaultNetworkCallback(networkCallback)
+            }
+            Build.VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP -> {
+                val networkRequest = NetworkRequest.Builder()
+                    .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+                    .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                    .build()
+                connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
+            }
+            else -> {
+                mContext.registerReceiver(
+                    networkReceiver,
+                    IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+                )
+            }
         }
     }
 

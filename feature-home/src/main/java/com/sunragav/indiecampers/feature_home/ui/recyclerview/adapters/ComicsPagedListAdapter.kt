@@ -10,7 +10,6 @@ import com.sunragav.indiecampers.feature_home.databinding.ItemViewBinding
 import com.sunragav.indiecampers.feature_home.ui.mapper.ComicsUIEntityMapper
 import com.sunragav.indiecampers.feature_home.ui.recyclerview.viewholders.ComicsViewHolder
 import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
-import com.sunragav.indiecampers.home.presentation.viewmodels.HomeVM
 
 
 class ComicsPagedListAdapter(

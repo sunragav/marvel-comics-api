@@ -1,14 +1,11 @@
 <resources>
     <string name="app_name">feature-home</string>
-    <string name="action_settings">Settings</string>
     <string name="comics_image">Comics image should come here. Its a shame, you this text here.</string>
 
-    <string name="blank_fragment">Please try a different search term</string>
     <string name="no_results">Please try a different search term</string>
     <string name="title_activity_comics_list_feature">ComicsListFeatureActivity</string>
     <string name="network_lost">"\uD83D\uDE28 Oops! Network Connection lost!"</string>
     <string name="network_error">"\uD83D\uDE28 Oops! There was a network error! Please retry."</string>
 
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="search_hint">Enter some comics title</string>
 </resources>
