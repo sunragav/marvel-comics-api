@@ -37,7 +37,6 @@ class HomeVMTest {
 
     private lateinit var comicsListHomeVM: HomeVM
     private val comicsMapper = ComicsEntityMapper()
-    private val domainNetworkState= NetworkStateRelay()
 
     @ObsoleteCoroutinesApi
     @ExperimentalCoroutinesApi
@@ -49,9 +48,7 @@ class HomeVMTest {
 
 
         comicsListHomeVM = HomeVM(
-            CompositeDisposable(),
-            getComicsListAction,
-            domainNetworkState
+            getComicsListAction
         )
 
         val result =

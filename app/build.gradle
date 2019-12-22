@@ -51,6 +51,7 @@ dependencies {
     implementation project(':data')
     implementation project(':localdata')
     implementation project(':remotedata')
+    implementation project(':android-utils')
 
 
     // Dagger dependency injection

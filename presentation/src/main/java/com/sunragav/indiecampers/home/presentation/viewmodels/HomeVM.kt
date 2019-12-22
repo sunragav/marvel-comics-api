@@ -6,19 +6,14 @@ import androidx.lifecycle.*
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
-import com.sunragav.indiecampers.home.domain.entities.NetworkState
-import com.sunragav.indiecampers.home.domain.entities.NetworkStateRelay
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction.Params
-import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.*
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
 open class HomeVM @Inject internal constructor(
-    private val disposables: CompositeDisposable,
-    private val getComicsListAction: GetComicsListAction,
-    networkStateRelay: NetworkStateRelay
+    private val getComicsListAction: GetComicsListAction
 ) : ViewModel(), CoroutineScope {
     companion object {
         private const val LIMIT = 20
@@ -62,7 +57,6 @@ open class HomeVM @Inject internal constructor(
 
 
     init {
-        networkStateRelay.relay.accept(NetworkState.EMPTY)
         currentComics.value = defaultComics
         filterRequestMediator.addSource(filterRequestLiveData) { param ->
             uiScope.launch {
@@ -86,10 +80,4 @@ open class HomeVM @Inject internal constructor(
         )
         filterRequestLiveData.postValue(filterRequest)
     }
-
-    override fun onCleared() {
-        super.onCleared()
-        disposables.dispose()
-    }
-
 }

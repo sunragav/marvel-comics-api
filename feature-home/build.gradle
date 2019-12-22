@@ -37,6 +37,7 @@ android {
         implementation project(':presentation')
         implementation project(':domain')
         implementation project(':utils')
+        implementation project(':android-utils')
 
 
 

@@ -1,10 +1,5 @@
 package com.sunragav.indiecampers.feature_home.ui.views
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
-import android.net.ConnectivityManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -12,6 +7,7 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.NavHostFragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.MemoryCategory
+import com.sunragav.indiecampers.android_utils.ConnectivityMonitorLiveData
 import com.sunragav.indiecampers.feature_home.R
 import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
 import com.sunragav.indiecampers.home.domain.entities.NetworkState
@@ -28,28 +24,21 @@ class ComicsListFeatureActivity : AppCompatActivity() {
     lateinit var networkStateRelay: NetworkStateRelay
 
     @Inject
+    lateinit var connectivityState: ConnectivityMonitorLiveData
+
+    @Inject
     lateinit var viewModelFactory: ComicsViewModelFactory
 
     @Inject
     lateinit var viewModel: HomeVM
 
-    private var broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            val notConnected = intent.getBooleanExtra(
-                ConnectivityManager
-                    .EXTRA_NO_CONNECTIVITY, false
-            )
-            if (notConnected) {
-                disconnected()
-            } else {
-                connected()
-            }
-        }
-    }
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
-
+        networkStateRelay.relay.accept(NetworkState.EMPTY)
+        connectivityState.observe(this, Observer {
+            if (it == true) connected() else disconnected()
+        })
 
         Glide.get(this).setMemoryCategory(MemoryCategory.LOW)
 
@@ -77,24 +66,16 @@ class ComicsListFeatureActivity : AppCompatActivity() {
             }
         }
 
-        registerReceiver(
-            broadcastReceiver,
-            IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
-        )
+
     }
 
 
-    fun connected() {
+    private fun connected() {
         networkStateRelay.relay.accept(NetworkState.CONNECTED)
 
     }
 
-    fun disconnected() {
+    private fun disconnected() {
         networkStateRelay.relay.accept(NetworkState.DISCONNECTED)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        unregisterReceiver(broadcastReceiver)
     }
 }
