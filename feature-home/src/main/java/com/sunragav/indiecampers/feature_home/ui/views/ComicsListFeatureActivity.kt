@@ -32,6 +32,8 @@ class ComicsListFeatureActivity : AppCompatActivity() {
     @Inject
     lateinit var viewModel: HomeVM
 
+    private var alreadyNavigatedToComicsDetailFragment = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
@@ -54,7 +56,8 @@ class ComicsListFeatureActivity : AppCompatActivity() {
                     navHostFragment.navController.navigate(R.id.emptyFragment)
 
                 viewModel.currentComics.observe(this, Observer<ComicsEntity> {
-                    if (it.id != "default") {
+                    if (it.id != "default" && alreadyNavigatedToComicsDetailFragment.not()) {
+                        alreadyNavigatedToComicsDetailFragment = true
                         navHostFragment.navController.navigate(R.id.comicsDetailFragment)
                     }
                 })
@@ -69,6 +72,10 @@ class ComicsListFeatureActivity : AppCompatActivity() {
 
     }
 
+    override fun onDestroy() {
+        viewModel.currentComics.removeObservers(this)
+        super.onDestroy()
+    }
 
     private fun connected() {
         networkStateRelay.relay.accept(NetworkState.CONNECTED)

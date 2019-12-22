@@ -7,12 +7,11 @@ import androidx.navigation.findNavController
 import com.sunragav.indiecampers.feature_home.R
 import com.sunragav.indiecampers.feature_home.ui.mapper.ComicsUIEntityMapper
 import com.sunragav.indiecampers.feature_home.ui.models.ComicsUIModel
-import com.sunragav.indiecampers.home.presentation.viewmodels.HomeVM
+import com.sunragav.indiecampers.feature_home.ui.views.ComicsListFeatureActivity
 
 
 class ComicsDataBindingModel(
     var comics: ComicsUIModel,
-    val viewModel: HomeVM,
     private val comicsUIEntityMapper: ComicsUIEntityMapper
 ) : BaseObservable() {
 
@@ -22,7 +21,7 @@ class ComicsDataBindingModel(
     val imageUrl: ObservableField<String> = ObservableField(comics.thumbNail)
 
     fun onClick(view: View) {
-        viewModel.currentComics.postValue(comicsUIEntityMapper.from(comics))
+        (view.context as ComicsListFeatureActivity).viewModel.currentComics.postValue(comicsUIEntityMapper.from(comics))
         if (view.context.resources.getBoolean(R.bool.isTablet).not())
             view.findNavController()
                 .navigate(R.id.action_comicsListFeatureActivityFragment_to_comicsDetailFragment)

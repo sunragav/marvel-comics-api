@@ -30,7 +30,7 @@ import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
 
-class ComicsListFeatureActivityFragment : Fragment() {
+class ComicsListFeatureFragment : Fragment() {
     private lateinit var binding: FragmentComicsListFeatureBinding
     private lateinit var viewModel: HomeVM
     @Inject
@@ -108,7 +108,7 @@ class ComicsListFeatureActivityFragment : Fragment() {
                     NetworkState.DISCONNECTED -> {
                         Toast.makeText(
                             activity,
-                            "\uD83D\uDE28 Oops!! Network Connection lost!!",
+                            R.string.network_lost,
                             Toast.LENGTH_LONG
                         )
                     }
@@ -121,7 +121,7 @@ class ComicsListFeatureActivityFragment : Fragment() {
                         viewModel.isLoading.set(false)
                         Toast.makeText(
                             activity,
-                            "\uD83D\uDE28 Oops!! There was a network error!!",
+                            R.string.network_error,
                             Toast.LENGTH_LONG
                         )
                             .show()
@@ -140,8 +140,22 @@ class ComicsListFeatureActivityFragment : Fragment() {
 
     }
 
+
+    override fun onDestroyView() {
+        binding.rvComicsList.addOnAttachStateChangeListener(object :
+            View.OnAttachStateChangeListener {
+            override fun onViewAttachedToWindow(v: View) { // no-op
+            }
+
+            override fun onViewDetachedFromWindow(v: View) {
+                binding.rvComicsList.adapter = null
+            }
+        })
+        super.onDestroyView()
+    }
+
     private fun initAdapter(binding: FragmentComicsListFeatureBinding) {
-        comicsListAdapter = ComicsPagedListAdapter(ComicsUIEntityMapper(), viewModel)
+        comicsListAdapter = ComicsPagedListAdapter(ComicsUIEntityMapper())
         binding.rvComicsList.adapter = comicsListAdapter
     }
 

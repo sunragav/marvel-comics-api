@@ -5,7 +5,7 @@
     app:startDestination="@id/comicsListFeatureActivityFragment">
     <fragment
         android:id="@+id/comicsListFeatureActivityFragment"
-        android:name="com.sunragav.indiecampers.feature_home.ui.views.ComicsListFeatureActivityFragment"
+        android:name="com.sunragav.indiecampers.feature_home.ui.views.ComicsListFeatureFragment"
         android:label="ComicsListFeatureActivityFragment">
         <action
             android:id="@+id/action_comicsListFeatureActivityFragment_to_comicsDetailFragment"

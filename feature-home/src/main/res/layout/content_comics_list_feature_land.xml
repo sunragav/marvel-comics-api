@@ -8,7 +8,7 @@
 
     <fragment
         android:id="@+id/fragment1"
-        android:name="com.sunragav.indiecampers.feature_home.ui.views.ComicsListFeatureActivityFragment"
+        android:name="com.sunragav.indiecampers.feature_home.ui.views.ComicsListFeatureFragment"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"

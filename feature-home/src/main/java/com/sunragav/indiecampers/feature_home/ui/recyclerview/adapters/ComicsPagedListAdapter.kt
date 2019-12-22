@@ -14,8 +14,7 @@ import com.sunragav.indiecampers.home.presentation.viewmodels.HomeVM
 
 
 class ComicsPagedListAdapter(
-    private val comicsUIEntityMapper: ComicsUIEntityMapper,
-    private val viewModel: HomeVM
+    private val comicsUIEntityMapper: ComicsUIEntityMapper
 ) :
     PagedListAdapter<ComicsEntity, ComicsViewHolder>(COMICS_COMPARATOR) {
     init {
@@ -42,7 +41,7 @@ class ComicsPagedListAdapter(
     }
 
     override fun onBindViewHolder(holder: ComicsViewHolder, position: Int) {
-        getItem(position)?.let { holder.bind(it, viewModel, comicsUIEntityMapper) }
+        getItem(position)?.let { holder.bind(it, comicsUIEntityMapper) }
     }
 
     companion object {

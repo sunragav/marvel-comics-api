@@ -50,6 +50,9 @@ The project has been split into 9 modules, listed below from top-down order acco
 	where as the 'domain' or the 'feature' layer does not need those annotations so they use their own format. 
 	The network layer has a lot of other models to map the response received from the api call and transforms to a stripped down version 
 	just appropriate for the next layer above ('data') to consume.
+	If you can notice carefully, there are two different bindings bigImageUrl and imageUrl used for the Imageviews in the details screen and the list view screen respectively.
+	This enables us to download and maintain two different image sizes for the two screens so that the list view uses a smaller icon size for the images while the full screen
+	details screen uses a bigger image.
 	The detail view is designed using the CoordinatorLayout, NestedScrollview(body) and CollapsableToolBarLayout(header), so that it can be scrolled up to fade and collapse.
 	The 'feature-home' module also uses the navigation component for the navigation of the screens. 
 	It uses the databinding to bind the data it got from the viewmodel to the actual view, reducing much of the boiler plate code. 
@@ -101,27 +104,67 @@ The project has been split into 9 modules, listed below from top-down order acco
 
 The NetworkStateRelay in the 'domain' layer is a domain level abstraction of the network states that the application should handle.
 It is implemented using the RxRelay.
-It is injected via dagger. The ComicsListFeatureActivityFragment in the 'feature' module uses the state to change the UI.
+It is injected via dagger. The ComicsListFeatureFragment in the 'feature' module uses the state to change the UI.
 The relay is basically pushed from 2 places:
 1. ComicsListFeatureActivity - sets the initial state to EMPTY and then pushes the CONNECTED/ DISCONNECTED state based on the connection availability.
 2. ComicsListBoundaryCallback - sets the LOADING/LOADED/ERROR state based on the service API call status. 
 
 The following are the android modules:
-app
-feature-home
-presentation
-android-utils
-localdata
+app  (includes the UI test for the feature module and dagger dependency injection modules and the application component)
+feature-home (contains the UI for the feature)
+presentation (contains the viewmodel. It has the unit test for the comicsListSource livedata that emits the pagelist of the comics entities)
+android-utils (contains the connetivity state change helper)
+localdata ( contains the roomdb. It has both instrumentation test and the unit tests)
 
 The following are the kotlin library modules:
-domain
-local
-remotedata
-utils
+domain (contains the usecases. It has the unit tests covering all the use cases)
+local ( It is an implentation of the repository pattern. It supplies data to the domain with out revealing the source of the data. It has unit tests.)
+remotedata ( It is the service layer implemented using the retrofit and okhttp library. 
+            The okhttp has apikey injection interceptor and the http logging interceptor. It has unit tests for all the apis it exposes to the data layer)
+utils (Contains the utility functions and the Mapper interface which is used in the other layers to convert the models from one layer specific type to another)
 
 I have used the RXJava and RxRelay to communicate between the android and non-android modules.
 
-The versions of all the external libraries used are maintained in the versions.gradle file in the root of the project.
+The versions of all the external libraries used are maintained in the versions.gradle file in the root of the project. 
+So we can fiddle with the various library versions, and also the minSdk, targetSdk and compileSdk versions easily.
+
+
+The application code flow:
+The app starts with a splash activity in the 'app' module  and after a delay launches the ComicsListFeatureActivity in the 'feature' module. 
+The ComicsListFeatureActivity sets the domain level network state to EMPTY via the NetworkStateRelay which got injected via Dagger from the 'domain' module.
+The activity then sets listeners to the connectivity changes to communicate to the other systems via the NetworkStateRelay.
+It then uses the res boolean value isTablet to choose between the landscape (master-detail style ) layout or the portrait (single fragment at a time).
+It uses the viewmodel from the 'presentation' layer to see if there is a selected comics from the list to populate the details fragment in the master-detail layout 
+if the device is a tablet.
+It uses the navHostFragment of the navigation component to deal with these fragment transactions.
+
+The ComicsListFeatureFragment listens to the network state changes and as it receives the EMPTY state change triggered by the ComicsListFeatureActivity,
+it loads the search with the current query set. If no query is set it uses the default query which is "Avengers".
+
+The query is sent to viewmodel in the 'presentation' module, the viewmodel uses the GetComicsListAction usecase from the 'domain' module.
+The GetComicsListAction uses the ComicsRepository defined in the 'data' module to get the DatasourceFactory and the BoundaryCallback necessary for generating
+the LiveData of Pagelist of ComicsEntity to be displayed in the list view. The BoundaryCallback is defined in the 'data' module itself,
+where as the DatasourceFactory from the Room DB defined in the 'localdata' module. Each query generates a new DatasourceFactory.
+
+Once the LiveData<PageList<ComicsEntity> is received via the comicListSource in the viewmodel, the ComicsListFeatureFragment tries to populate the 
+Recyclerview's adapter to render the view. Now there are two cases either there is no data immediately or the end of the data is reached.
+The BoundaryCallback handles these 2 cases via the onZeroitemLoaded and the onItemAtEndLoaded. Both cases triggers an API call action which is performed via
+ComicsService defined in the 'remotedata' layer. The BoundaryCallback is in the 'data' module which is a repository abstraction layer. 
+It sets the NetworkStateRelay to LOADING state so that the ComicsListFeatureFragment in the 'feature' module can display the progressbar.
+The ComicsListFeatureFragment handles this by setting the isLoading Observable in the viewmodel which is binded to the progressbar view in the layout
+via databinding.
+Once the service call completes the control comes back to the 'data' module which updates the result in the room db in 'localdb' module. 
+And then the network state is set to LOADED state so the ui layer ('feature' module) can stop the progressbar. At the same time, the updating of the result in the
+room db triggers an event in the Datasource listened by the viewmodel via the livedata and communicated to the observer in the ComicsListFeatureFragment
+with the new paged list. The UI updates the recycler view adapter and the list is shown.
+When the user clicks on an any item the appropriate viewholder's onClick listener is triggered. The data binding calls the onCicked method defined in the
+ComicsDataBindingModel class which is the binding responsible for loading the data and handle events for the particular viewholder. 
+The onClick listener first updates the currentComics livedata in the viewmodel.
+The onClick uses the navigation component to perform the navigation in the single fragment layout. If it is a tablet there is no navigation performed.
+The ComicsDetailFragment observes for changes to the currentComics livedata from the viewmodel. So it updates it's view using the data binding.
+
+
+
 
 I hope you understand my effort. Please feel free to reach out to me for any questions. My email id is sunragav@gmail.com. Mobile: +49 15127928882
 Linkedin: https://www.linkedin.com/in/sunragav/

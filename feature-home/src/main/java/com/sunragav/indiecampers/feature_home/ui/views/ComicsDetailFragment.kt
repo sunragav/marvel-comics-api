@@ -21,7 +21,6 @@ import javax.inject.Inject
 
 
 class ComicsDetailFragment : Fragment() {
-    lateinit var binding: FragmentDetailBinding
     lateinit var viewModel: HomeVM
     @Inject
     lateinit var viewModelFactory: ComicsViewModelFactory
@@ -36,7 +35,7 @@ class ComicsDetailFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        binding = DataBindingUtil.inflate(
+        val binding = DataBindingUtil.inflate<FragmentDetailBinding>(
             inflater,
             R.layout.fragment_detail,
             container,
@@ -49,17 +48,30 @@ class ComicsDetailFragment : Fragment() {
 
 
         viewModel.currentComics.observe(this, Observer<ComicsEntity> {
-            if (it.id != "default")
-                binding.comicsUiModelObserver =
-                    ComicsDataBindingModel(
-                        comicsUIEntityMapper.to(it),
-                        viewModel,
-                        comicsUIEntityMapper
-                    )
+            if (it.id != "default") {
+                val comicsModel = ComicsDataBindingModel(
+                    comicsUIEntityMapper.to(it),
+                    comicsUIEntityMapper
+                )
+                if (binding.comicsUiModelObserver?.comics?.id != it.id)
+                    binding.comicsUiModelObserver = comicsModel
+
+            }
 
         })
 
         return binding.root
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        viewModel.currentComics.removeObservers(this)
+    }
+
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.currentComics.removeObservers(this)
     }
 
 
