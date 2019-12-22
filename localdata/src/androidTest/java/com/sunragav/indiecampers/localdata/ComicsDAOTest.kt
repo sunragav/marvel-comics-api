@@ -57,23 +57,22 @@ class ComicsDAOTest {
 
         comicsListDAO.insert(comicsList).test()
 
-        var result =
-            (comicsListDAO.getComicsList("143").create() as LimitOffsetDataSource).loadRange(
-                0,
-                LIMIT
-            )
-        assertThat(result.size, equalTo(1))
-
-        result = (comicsListDAO.getComicsList(
-            "%12%"
+        var result = (comicsListDAO.getComicsList(
+            "%FAKE%"
         ).create() as LimitOffsetDataSource).loadRange(0, LIMIT)
-        assertThat(result.size, equalTo(2))
+        assertThat(result.size, equalTo(3))
 
         result = (comicsListDAO.getComicsList().create() as LimitOffsetDataSource).loadRange(
             0,
             LIMIT
         )
         assertThat(result.size, equalTo(comicsCount))
+
+       comicsListDAO.getComicsById("143").test()
+           .assertSubscribed()
+           .assertValue{it==comicsList[0]}
+           .assertNoErrors()
+           .assertNotComplete() // As Room Observables are kept alive
     }
 
     @Test

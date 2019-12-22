@@ -34,7 +34,7 @@ The project has been split into 9 modules, listed below from top-down order acco
 1. app  -  Android app module which has a SplashActivity and the UI tests (espresso) and the necessary,
 	It is the module which has application class and provides the dependency injection for all the other modules using Dagger2.
 	The android test module mocks the "Dagger-Modules":  Remote, Local and Domain and overrides the retrofit fit service to provide the data from
-	a fake service, "FakeComicsService". It also implements a NetworkStateIdlingResource to trigger the testing only after the network state is valid and the
+	a fake service, "FakeComicsService". It also implements a NetworkStateIdlingResource to trigger the testing only after the network state is LOADED and the
 	UI is in an idle testable state.
 
 2. feature-home - Android Library module. This is the feature module and contains all the UI logic+layouts for the two screens (list and detail).
