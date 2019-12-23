@@ -70,11 +70,12 @@ class ComicsListFeatureFragment : Fragment() {
         binding.rvComicsList.layoutManager = GridLayoutManager(activity, 1)
         binding.rvComicsList.setHasFixedSize(true)
 
-        query = savedInstanceState?.getString(LAST_SEARCH_QUERY) ?: DEFAULT_QUERY
 
         activity?.let {
             viewModel = ViewModelProviders.of(it, viewModelFactory).get(HomeVM::class.java)
         }
+
+        query = savedInstanceState?.getString(LAST_SEARCH_QUERY) ?: (viewModel.lastSearchQuery()?:DEFAULT_QUERY)
 
         binding.viewModel = viewModel
 
@@ -93,7 +94,6 @@ class ComicsListFeatureFragment : Fragment() {
         showEmptyList(pagedList?.size == 0)
         comicsListAdapter.submitList(pagedList)
         comicsListAdapter.notifyDataSetChanged()
-
     }
 
     private fun initListeners() {
@@ -164,9 +164,9 @@ class ComicsListFeatureFragment : Fragment() {
             binding.emptyList.visibility = View.VISIBLE
             binding.rvComicsList.visibility = View.GONE
         } else {
-            repositoryStateRelay.relay.accept(NetworkState.DB_LOADED)
             binding.emptyList.visibility = View.GONE
             binding.rvComicsList.visibility = View.VISIBLE
+            repositoryStateRelay.relay.accept(NetworkState.DB_LOADED)
         }
     }
 
@@ -180,7 +180,8 @@ class ComicsListFeatureFragment : Fragment() {
         binding.searchComics.text.trim().let {
             if (it.isNotEmpty()) {
                 // binding.rvComicsList.scrollToPosition(0)
-                viewModel.search(it.toString())
+                query = it.toString()
+                viewModel.search(query)
                 comicsListAdapter.submitList(null)
                 comicsListAdapter.notifyDataSetChanged()
                 binding.rvComicsList.recycledViewPool.clear()

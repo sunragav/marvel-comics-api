@@ -2,10 +2,8 @@ package com.sunragav.indiecampers.remotedata.api
 
 import com.sunragav.indiecampers.remotedata.models.Comic
 import com.sunragav.indiecampers.remotedata.models.DataWrapper
-import io.reactivex.Observable
 import io.reactivex.Single
 import retrofit2.http.GET
-import retrofit2.http.Path
 import retrofit2.http.Query
 
 const val HASH = "hash"

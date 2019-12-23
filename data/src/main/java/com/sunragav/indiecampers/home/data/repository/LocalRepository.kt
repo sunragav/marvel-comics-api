@@ -4,7 +4,6 @@ import androidx.paging.DataSource
 import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction
 import io.reactivex.Completable
-import io.reactivex.Observable
 
 
 interface LocalRepository {

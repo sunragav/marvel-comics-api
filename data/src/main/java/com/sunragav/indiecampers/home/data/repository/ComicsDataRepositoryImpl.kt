@@ -67,7 +67,18 @@ class ComicsDataRepositoryImpl @Inject constructor(
                     .subscribe(
                         { comicsList ->
                             println("Loaded page$lastRequestedPage offset:${lastRequestedPage * query.limit}")
-                            updateDB(comicsList)
+                            localRepository.insert(comicsList)
+                                .subscribeOn(backgroundScheduler)
+                                .observeOn(backgroundScheduler)
+                                .subscribe {
+                                    lastRequestedPage++
+                                    isRequestInProgress = false
+                                    Observable.fromCallable {
+                                        repositoryStateRelay.relay.accept(NetworkState.LOADED)
+                                    }.subscribeOn(foregroundScheduler)
+                                        .retry(1)
+                                        .subscribe()
+                                }
                         },
                         { error ->
                             Observable.fromCallable {
