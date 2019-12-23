@@ -22,7 +22,7 @@ import com.sunragav.indiecampers.feature_home.ui.mapper.ComicsUIEntityMapper
 import com.sunragav.indiecampers.feature_home.ui.recyclerview.adapters.ComicsPagedListAdapter
 import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
 import com.sunragav.indiecampers.home.domain.entities.NetworkState
-import com.sunragav.indiecampers.home.domain.entities.NetworkStateRelay
+import com.sunragav.indiecampers.home.domain.entities.RepositoryStateRelay
 import com.sunragav.indiecampers.home.presentation.factory.ComicsViewModelFactory
 import com.sunragav.indiecampers.home.presentation.viewmodels.HomeVM
 import dagger.android.support.AndroidSupportInjection
@@ -40,7 +40,7 @@ class ComicsListFeatureFragment : Fragment() {
     lateinit var disposable: CompositeDisposable
 
     @Inject
-    lateinit var networkStateRelay: NetworkStateRelay
+    lateinit var repositoryStateRelay: RepositoryStateRelay
 
 
     private lateinit var comicsListAdapter: ComicsPagedListAdapter
@@ -70,11 +70,12 @@ class ComicsListFeatureFragment : Fragment() {
         binding.rvComicsList.layoutManager = GridLayoutManager(activity, 1)
         binding.rvComicsList.setHasFixedSize(true)
 
-        query = savedInstanceState?.getString(LAST_SEARCH_QUERY) ?: DEFAULT_QUERY
 
         activity?.let {
             viewModel = ViewModelProviders.of(it, viewModelFactory).get(HomeVM::class.java)
         }
+
+        query = savedInstanceState?.getString(LAST_SEARCH_QUERY) ?: (viewModel.lastSearchQuery()?:DEFAULT_QUERY)
 
         binding.viewModel = viewModel
 
@@ -93,13 +94,12 @@ class ComicsListFeatureFragment : Fragment() {
         showEmptyList(pagedList?.size == 0)
         comicsListAdapter.submitList(pagedList)
         comicsListAdapter.notifyDataSetChanged()
-
     }
 
     private fun initListeners() {
         viewModel.comicsListSource.observe(this, pagedListLiveDataObserver)
         val subscription =
-            networkStateRelay.relay.subscribe {
+            repositoryStateRelay.relay.subscribe {
                 when (it) {
                     NetworkState.LOADING -> viewModel.isLoading.set(true)
                     NetworkState.LOADED -> {
@@ -166,6 +166,7 @@ class ComicsListFeatureFragment : Fragment() {
         } else {
             binding.emptyList.visibility = View.GONE
             binding.rvComicsList.visibility = View.VISIBLE
+            repositoryStateRelay.relay.accept(NetworkState.DB_LOADED)
         }
     }
 
@@ -179,7 +180,8 @@ class ComicsListFeatureFragment : Fragment() {
         binding.searchComics.text.trim().let {
             if (it.isNotEmpty()) {
                 // binding.rvComicsList.scrollToPosition(0)
-                viewModel.search(it.toString())
+                query = it.toString()
+                viewModel.search(query)
                 comicsListAdapter.submitList(null)
                 comicsListAdapter.notifyDataSetChanged()
                 binding.rvComicsList.recycledViewPool.clear()

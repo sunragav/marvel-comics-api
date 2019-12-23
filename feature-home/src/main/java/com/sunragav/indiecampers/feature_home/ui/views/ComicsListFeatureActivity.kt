@@ -11,7 +11,7 @@ import com.sunragav.indiecampers.android_utils.ConnectivityMonitorLiveData
 import com.sunragav.indiecampers.feature_home.R
 import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
 import com.sunragav.indiecampers.home.domain.entities.NetworkState
-import com.sunragav.indiecampers.home.domain.entities.NetworkStateRelay
+import com.sunragav.indiecampers.home.domain.entities.RepositoryStateRelay
 import com.sunragav.indiecampers.home.presentation.factory.ComicsViewModelFactory
 import com.sunragav.indiecampers.home.presentation.viewmodels.HomeVM
 import dagger.android.AndroidInjection
@@ -21,7 +21,7 @@ import javax.inject.Inject
 class ComicsListFeatureActivity : AppCompatActivity() {
 
     @Inject
-    lateinit var networkStateRelay: NetworkStateRelay
+    lateinit var repositoryStateRelay: RepositoryStateRelay
 
     @Inject
     lateinit var connectivityState: ConnectivityMonitorLiveData
@@ -39,7 +39,7 @@ class ComicsListFeatureActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
-        networkStateRelay.relay.accept(NetworkState.EMPTY)
+        repositoryStateRelay.relay.accept(NetworkState.EMPTY)
         connectivityState.observe(this, Observer {
             if (it == true) connected() else disconnected()
         })
@@ -86,11 +86,11 @@ class ComicsListFeatureActivity : AppCompatActivity() {
     }
 
     private fun connected() {
-        networkStateRelay.relay.accept(NetworkState.CONNECTED)
+        repositoryStateRelay.relay.accept(NetworkState.CONNECTED)
 
     }
 
     private fun disconnected() {
-        networkStateRelay.relay.accept(NetworkState.DISCONNECTED)
+        repositoryStateRelay.relay.accept(NetworkState.DISCONNECTED)
     }
 }

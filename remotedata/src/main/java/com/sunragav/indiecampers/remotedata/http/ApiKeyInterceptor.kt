@@ -1,9 +1,13 @@
 package com.sunragav.indiecampers.remotedata.http
 
+import com.sunragav.indiecampers.remotedata.qualifiers.PublicKey
 import okhttp3.Interceptor
 import okhttp3.Response
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class ApiKeyInterceptor(private val publicKey: String) : Interceptor {
+@Singleton
+class ApiKeyInterceptor @Inject constructor(@PublicKey private val publicKey: String) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()

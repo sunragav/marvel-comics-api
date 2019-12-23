@@ -3,13 +3,12 @@ package com.sunragav.indiecampers.home.data.repository
 import androidx.paging.PagedList
 import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
 import com.sunragav.indiecampers.home.domain.entities.NetworkState
-import com.sunragav.indiecampers.home.domain.entities.NetworkStateRelay
+import com.sunragav.indiecampers.home.domain.entities.RepositoryStateRelay
 import com.sunragav.indiecampers.home.domain.qualifiers.Background
 import com.sunragav.indiecampers.home.domain.qualifiers.Foreground
 import com.sunragav.indiecampers.home.domain.repositories.ComicsDataRepository
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction.GetComicsListActionResult
-import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.disposables.CompositeDisposable
@@ -21,29 +20,17 @@ class ComicsDataRepositoryImpl @Inject constructor(
     val disposable: CompositeDisposable,
     val localRepository: LocalRepository,
     val remoteRepository: RemoteRepository,
-    val networkStateRelay: NetworkStateRelay,
+    val repositoryStateRelay: RepositoryStateRelay,
     @Foreground val foregroundScheduler: Scheduler,
     @Background val backgroundScheduler: Scheduler
 ) : ComicsDataRepository {
 
-    override fun getComics(query: String): Observable<ComicsEntity> {
-        val localObservable = localRepository.getComicsById(query)
-        val remoteObservable = remoteRepository.getComicsById(query).doOnNext {
-            updateComics(it)
-        }
-        return Observable.concat(localObservable, remoteObservable).firstOrError().toObservable()
-    }
 
     override fun getComicsList(query: GetComicsListAction.Params): GetComicsListActionResult {
         return GetComicsListActionResult(
             localRepository.getComicsListDatasourceFactory(query),
             ComicsListBoundaryCallback(query)
         )
-    }
-
-
-    override fun updateComics(comicsEntity: ComicsEntity): Completable {
-        return localRepository.update(comicsEntity)
     }
 
     inner class ComicsListBoundaryCallback(
@@ -65,7 +52,7 @@ class ComicsDataRepositoryImpl @Inject constructor(
             if (isRequestInProgress) {
                 return
             }
-            networkStateRelay.relay.accept(NetworkState.LOADING)
+            repositoryStateRelay.relay.accept(NetworkState.LOADING)
             println("Requesting page$lastRequestedPage")
             isRequestInProgress = true
             disposable.add(
@@ -73,32 +60,55 @@ class ComicsDataRepositoryImpl @Inject constructor(
                     query.searchKey,
                     lastRequestedPage,
                     query.limit
-                ).subscribeOn(backgroundScheduler).observeOn(backgroundScheduler).subscribe(
-                    { comicsList ->
-                        println("Loaded page$lastRequestedPage offset:${lastRequestedPage * query.limit}")
-                        localRepository.insert(comicsList)
-                            .subscribeOn(backgroundScheduler)
-                            .observeOn(backgroundScheduler)
-                            .subscribe {
-                                lastRequestedPage++
-                                isRequestInProgress = false
-                                localRepository.updateRequest(query.copy(offset = lastRequestedPage))
-                                Observable.fromCallable {
-                                    networkStateRelay.relay.accept(NetworkState.LOADED)
-                                }.subscribeOn(foregroundScheduler)
-                                    .retry(1)
-                                    .subscribe()
-                            }
-                    },
-                    { error ->
-                        Observable.fromCallable {
-                            networkStateRelay.relay.accept(NetworkState.error(error.localizedMessage))
-                        }.subscribeOn(foregroundScheduler)
-                            .subscribe()
-                        isRequestInProgress = false
-                    })
+                ).subscribeOn(backgroundScheduler)
+                    .doOnSubscribe { disposable.add(it) }
+                    .observeOn(backgroundScheduler)
+                    .retry(1)
+                    .subscribe(
+                        { comicsList ->
+                            println("Loaded page$lastRequestedPage offset:${lastRequestedPage * query.limit}")
+                            localRepository.insert(comicsList)
+                                .subscribeOn(backgroundScheduler)
+                                .observeOn(backgroundScheduler)
+                                .subscribe {
+                                    lastRequestedPage++
+                                    isRequestInProgress = false
+                                    Observable.fromCallable {
+                                        repositoryStateRelay.relay.accept(NetworkState.LOADED)
+                                    }.subscribeOn(foregroundScheduler)
+                                        .retry(1)
+                                        .subscribe()
+                                }
+                        },
+                        { error ->
+                            Observable.fromCallable {
+                                repositoryStateRelay.relay.accept(NetworkState.error(error.localizedMessage))
+                            }.doOnSubscribe { disposable.add(it) }.subscribeOn(foregroundScheduler)
+                                .subscribe()
+                            isRequestInProgress = false
+                        })
             )
 
+        }
+
+        private fun updateDB(comicsList: List<ComicsEntity>) {
+            localRepository.insert(comicsList)
+                .subscribeOn(backgroundScheduler)
+                .observeOn(backgroundScheduler)
+                .doOnSubscribe{disposable.add(it)}
+                .andThen {
+                    lastRequestedPage++
+                    isRequestInProgress = false
+                    Observable.fromCallable {
+                        repositoryStateRelay.relay.accept(NetworkState.LOADED)
+                    }.doOnSubscribe { disposable.add(it) }
+                        .subscribeOn(foregroundScheduler)
+                        .retry(1)
+                        .subscribe()
+                }
+                .doOnError{
+                    repositoryStateRelay.relay.accept(NetworkState.error(it.localizedMessage))
+                }.subscribe()
         }
     }
 }

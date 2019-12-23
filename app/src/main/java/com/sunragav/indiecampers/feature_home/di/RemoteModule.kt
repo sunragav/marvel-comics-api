@@ -5,11 +5,8 @@ import com.sunragav.indiecampers.marvelcomics.BuildConfig
 import com.sunragav.indiecampers.remotedata.api.ComicsService
 import com.sunragav.indiecampers.remotedata.datasource.NetworkDataSource
 import com.sunragav.indiecampers.remotedata.http.ApiKeyInterceptor
-import com.sunragav.indiecampers.remotedata.mapper.ComicsRemoteMapper
 import com.sunragav.indiecampers.remotedata.qualifiers.PrivateKey
 import com.sunragav.indiecampers.remotedata.qualifiers.PublicKey
-import com.sunragav.indiecampers.utils.HashGenerator
-import com.sunragav.indiecampers.utils.HashGeneratorImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -41,9 +38,6 @@ class RemoteModule {
     @PrivateKey
     fun providePrivateKey() = BuildConfig.PRIVATE_KEY
 
-    @Provides
-    @Singleton
-    fun provideComicsRemoteMapper() = ComicsRemoteMapper()
 
     @Provides
     fun provideComicsService(retrofit: Retrofit): ComicsService =
@@ -61,23 +55,18 @@ class RemoteModule {
 
     @Provides
     @Singleton
-    fun provideHttpClient(): OkHttpClient {
-
+    fun provideHttpClient(apiKeyInterceptor: ApiKeyInterceptor): OkHttpClient {
         val httpLoggingInterceptor = HttpLoggingInterceptor()
         val level = getInterceptorLevel()
         httpLoggingInterceptor.level = level
         return OkHttpClient.Builder()
             .addInterceptor(httpLoggingInterceptor)
-            .addInterceptor(ApiKeyInterceptor(BuildConfig.PUBLIC_KEY))
+            .addInterceptor(apiKeyInterceptor)
             .cache(null)
             .connectTimeout(60, TimeUnit.SECONDS)
             .readTimeout(60, TimeUnit.SECONDS)
             .writeTimeout(60, TimeUnit.SECONDS).build()
     }
-
-    @Provides
-    @Singleton
-    fun getHashGenerator(): HashGenerator = HashGeneratorImpl()
 
     private fun getInterceptorLevel(): HttpLoggingInterceptor.Level? {
         return if (BuildConfig.DEBUG)
