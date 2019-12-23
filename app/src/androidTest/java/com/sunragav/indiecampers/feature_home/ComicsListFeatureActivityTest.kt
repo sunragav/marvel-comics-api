@@ -12,7 +12,7 @@ import com.sunragav.indiecampers.feature_home.ui.views.ComicsListFeatureActivity
 import com.sunragav.indiecampers.marvelcomics.R
 import com.sunragav.indiecampers.feature_home.utils.CustomMatchers.Companion.atPositionWithComis_Id_And_Title
 import com.sunragav.indiecampers.feature_home.utils.RecyclerViewChildAction.Companion.clickChildViewWithId
-import com.sunragav.indiecampers.feature_home.utils.NetworkStateIdlingResource
+import com.sunragav.indiecampers.feature_home.utils.RepositoryStateIdlingResource
 import com.sunragav.indiecampers.feature_home.utils.comic1
 import com.sunragav.indiecampers.feature_home.ui.recyclerview.viewholders.ComicsViewHolder
 import com.sunragav.indiecampers.remotedata.mapper.ComicsRemoteMapper
@@ -26,13 +26,13 @@ class ComicsListFeatureActivityTest {
     @get:Rule
     val rule = ActivityTestRule<ComicsListFeatureActivity>(ComicsListFeatureActivity::class.java)
 
-    private lateinit var networkIdlingResource: NetworkStateIdlingResource
+    private lateinit var repositoryIdlingResource: RepositoryStateIdlingResource
     private val comicsRemoteMapper = ComicsRemoteMapper()
 
     @Before
     fun setup() {
-        networkIdlingResource = NetworkStateIdlingResource(rule.activity.networkStateRelay)
-        IdlingRegistry.getInstance().register(networkIdlingResource)
+        repositoryIdlingResource = RepositoryStateIdlingResource(rule.activity.repositoryStateRelay)
+        IdlingRegistry.getInstance().register(repositoryIdlingResource)
     }
 
     @Test
@@ -57,7 +57,7 @@ class ComicsListFeatureActivityTest {
 
     @After
     fun tearDown() {
-        IdlingRegistry.getInstance().unregister(networkIdlingResource)
+        IdlingRegistry.getInstance().unregister(repositoryIdlingResource)
     }
 }
 

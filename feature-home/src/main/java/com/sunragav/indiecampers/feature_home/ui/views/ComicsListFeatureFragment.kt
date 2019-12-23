@@ -22,7 +22,7 @@ import com.sunragav.indiecampers.feature_home.ui.mapper.ComicsUIEntityMapper
 import com.sunragav.indiecampers.feature_home.ui.recyclerview.adapters.ComicsPagedListAdapter
 import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
 import com.sunragav.indiecampers.home.domain.entities.NetworkState
-import com.sunragav.indiecampers.home.domain.entities.NetworkStateRelay
+import com.sunragav.indiecampers.home.domain.entities.RepositoryStateRelay
 import com.sunragav.indiecampers.home.presentation.factory.ComicsViewModelFactory
 import com.sunragav.indiecampers.home.presentation.viewmodels.HomeVM
 import dagger.android.support.AndroidSupportInjection
@@ -40,7 +40,7 @@ class ComicsListFeatureFragment : Fragment() {
     lateinit var disposable: CompositeDisposable
 
     @Inject
-    lateinit var networkStateRelay: NetworkStateRelay
+    lateinit var repositoryStateRelay: RepositoryStateRelay
 
 
     private lateinit var comicsListAdapter: ComicsPagedListAdapter
@@ -99,7 +99,7 @@ class ComicsListFeatureFragment : Fragment() {
     private fun initListeners() {
         viewModel.comicsListSource.observe(this, pagedListLiveDataObserver)
         val subscription =
-            networkStateRelay.relay.subscribe {
+            repositoryStateRelay.relay.subscribe {
                 when (it) {
                     NetworkState.LOADING -> viewModel.isLoading.set(true)
                     NetworkState.LOADED -> {
@@ -164,6 +164,7 @@ class ComicsListFeatureFragment : Fragment() {
             binding.emptyList.visibility = View.VISIBLE
             binding.rvComicsList.visibility = View.GONE
         } else {
+            repositoryStateRelay.relay.accept(NetworkState.DB_LOADED)
             binding.emptyList.visibility = View.GONE
             binding.rvComicsList.visibility = View.VISIBLE
         }

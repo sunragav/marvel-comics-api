@@ -15,7 +15,9 @@ data class NetworkState(
         SUCCESS_EMPTY, // New
         FAILED,
         DISCONNECTED,
-        CONNECTED
+        CONNECTED,
+        DB_ERROR,
+        DB_LOADED
     }
 
     companion object {
@@ -24,6 +26,8 @@ data class NetworkState(
         val LOADED = NetworkState(Status.SUCCESS_LOADED) // New
         val LOADING = NetworkState(Status.RUNNING)
         val ERROR = NetworkState(Status.FAILED)
+        val DB_ERROR = NetworkState(Status.DB_ERROR)
+        val DB_LOADED = NetworkState(Status.DB_LOADED)
         val CONNECTED = NetworkState(Status.CONNECTED)
         val DISCONNECTED = NetworkState(Status.DISCONNECTED)
         fun error(msg: String?) = NetworkState(Status.FAILED, msg)
@@ -31,6 +35,6 @@ data class NetworkState(
 }
 
 @Singleton
-class NetworkStateRelay @Inject constructor() {
+class RepositoryStateRelay @Inject constructor() {
     val relay: BehaviorRelay<NetworkState> = BehaviorRelay.create()
 }

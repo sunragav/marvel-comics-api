@@ -7,11 +7,9 @@ import io.reactivex.Completable
 import io.reactivex.Observable
 
 interface ComicsDataRepository {
-    fun getComics(query: String): Observable<ComicsEntity>
 
     fun getComicsList(
         query: GetComicsListAction.Params
     ): GetComicsListActionResult
 
-    fun updateComics(comicsEntity: ComicsEntity): Completable
 }

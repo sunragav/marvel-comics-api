@@ -4,8 +4,11 @@ import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
 import com.sunragav.indiecampers.remotedata.models.Comic
 import com.sunragav.indiecampers.remotedata.models.Image
 import com.sunragav.indiecampers.utils.Mapper
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class ComicsRemoteMapper : Mapper<ComicsEntity, Comic> {
+@Singleton
+class ComicsRemoteMapper @Inject constructor() : Mapper<ComicsEntity, Comic> {
     override fun from(model: Comic): ComicsEntity {
         return ComicsEntity(
             id = model.id.toString(),

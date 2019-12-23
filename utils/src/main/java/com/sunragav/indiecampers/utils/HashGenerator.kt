@@ -3,13 +3,13 @@ package com.sunragav.indiecampers.utils
 import java.math.BigInteger
 import java.security.MessageDigest
 import javax.inject.Inject
+import javax.inject.Singleton
 
-interface HashGenerator {
-    fun buildMD5Digest(message: String): String
-}
 
-class HashGeneratorImpl @Inject constructor() : HashGenerator {
-    override fun buildMD5Digest(message: String): String {
+
+@Singleton
+class HashGenerator @Inject constructor()  {
+     fun buildMD5Digest(message: String): String {
         return run {
             val messageDigest = MessageDigest.getInstance("MD5")
             val bytes = messageDigest.digest(message.toByteArray())
@@ -20,8 +20,6 @@ class HashGeneratorImpl @Inject constructor() : HashGenerator {
             }
             md5
         }
-
-
     }
 
 }

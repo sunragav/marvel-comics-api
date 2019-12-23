@@ -9,5 +9,4 @@ interface RemoteRepository {
         query: String, lastRequestedPage: Int, limit: Int
     ): Single<List<ComicsEntity>>
 
-    fun getComicsById(uniqueIdentifier: String): Observable<ComicsEntity>
 }

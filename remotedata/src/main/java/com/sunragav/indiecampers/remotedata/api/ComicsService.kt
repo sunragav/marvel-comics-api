@@ -15,7 +15,6 @@ const val LIMIT = "limit"
 const val TITLE = "titleStartsWith"
 
 interface ComicsService {
-
     @GET("comics")
     fun getComicsListStartsWithTitle(
         @Query(HASH) md5Digest: String,
@@ -24,21 +23,4 @@ interface ComicsService {
         @Query(LIMIT) limit: Int?,
         @Query(TITLE) titleStartsWith: String
     ): Single<DataWrapper<List<Comic>>>
-
-    @GET("comics")
-    fun getAllComicsList(
-        @Query(HASH) md5Digest: String,
-        @Query(TIMESTAMP) timestamp: Long,
-        @Query(OFFSET) offset: Int?,
-        @Query(LIMIT) limit: Int?
-    ): Single<DataWrapper<List<Comic>>>
-
-    @GET("comics/{comicsId}")
-    fun getComicsById(
-        @Path("comicsId") id: String,
-        @Query(HASH) md5Digest: String,
-        @Query(TIMESTAMP) timestamp: Long,
-        @Query(OFFSET) offset: Int?,
-        @Query(LIMIT) limit: Int?
-    ): Observable<DataWrapper<List<Comic>>>
 }

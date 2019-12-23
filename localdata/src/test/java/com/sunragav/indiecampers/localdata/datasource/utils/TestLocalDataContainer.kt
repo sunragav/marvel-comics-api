@@ -1,7 +1,6 @@
 package com.sunragav.indiecampers.localdata.datasource.utils
 
 import com.sunragav.indiecampers.localdata.models.ComicsLocal
-import com.sunragav.indiecampers.localdata.models.Favorites
 
 
 class TestLocalDataContainer {

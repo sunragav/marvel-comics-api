@@ -4,7 +4,6 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.sunragav.indiecampers.home.domain.repositories.ComicsDataRepository
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction.GetComicsListActionResult
-import com.sunragav.indiecampers.home.presentation.mapper.ComicsEntityMapper
 import com.sunragav.indiecampers.home.presentation.utils.PagingDataSourceUtil
 import com.sunragav.indiecampers.home.presentation.utils.TestDataContainer
 import com.sunragav.indiecampers.home.presentation.utils.observeOnce
@@ -34,7 +33,6 @@ class HomeVMTest {
     private val comicsDataRepository: ComicsDataRepository = mockk()
 
     private lateinit var comicsListHomeVM: HomeVM
-    private val comicsMapper = ComicsEntityMapper()
 
     @ObsoleteCoroutinesApi
     @ExperimentalCoroutinesApi
@@ -65,17 +63,19 @@ class HomeVMTest {
 
     @Test
     fun test_comicsList() {
-        val comicsList = TestDataContainer.getComicsList().map { comicsMapper.from(it) }
+        val comicsList = TestDataContainer.getComicsList()
         val ds = PagingDataSourceUtil.createMockDataSourceFactory(comicsList)
         val actionResult = GetComicsListActionResult(ds, mockk())
 
         every { comicsDataRepository.getComicsList(any()) } returns (actionResult)
 
+
+
+        comicsListHomeVM.search("112")
+
         comicsListHomeVM.comicsListSource.observeOnce {
             assertThat(it.snapshot(), equalTo(comicsList))
         }
-
-        comicsListHomeVM.search("112")
 
 
     }

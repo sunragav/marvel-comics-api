@@ -5,8 +5,6 @@ import androidx.room.Room
 import com.sunragav.indiecampers.home.data.repository.LocalRepository
 import com.sunragav.indiecampers.localdata.datasource.LocalDataSourceImpl
 import com.sunragav.indiecampers.localdata.db.ComicsDB
-import com.sunragav.indiecampers.localdata.mapper.ComicsFavoritesMapper
-import com.sunragav.indiecampers.localdata.mapper.ComicsLocalMapper
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -27,14 +25,6 @@ class LocalPersistenceModule {
 
     @Provides
     @Singleton
-    fun provideComicsLoacalMapper() = ComicsLocalMapper()
-
-    @Provides
-    @Singleton
-    fun provideComicsFavoritesMapper() = ComicsFavoritesMapper()
-
-    @Provides
-    @Singleton
     fun providesDatabase(
         application: Application
     ) = Room.inMemoryDatabaseBuilder(application, ComicsDB::class.java)
@@ -46,18 +36,5 @@ class LocalPersistenceModule {
     fun providesComicsDAO(
         comicsDB: ComicsDB
     ) = comicsDB.getComicsListDao()
-
-    @Provides
-    @Singleton
-    fun providesFavoritesDAO(
-        comicsDB: ComicsDB
-    ) = comicsDB.getFavoritesDao()
-
-
-    @Provides
-    @Singleton
-    fun providesRequestTrackerDao(
-        comicsDB: ComicsDB
-    ) = comicsDB.getRequestDao()
 
 }
