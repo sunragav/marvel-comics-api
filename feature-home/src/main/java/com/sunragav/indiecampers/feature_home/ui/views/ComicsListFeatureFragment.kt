@@ -110,7 +110,7 @@ class ComicsListFeatureFragment : Fragment() {
                             activity,
                             R.string.network_lost,
                             Toast.LENGTH_LONG
-                        )
+                        ).show()
                     }
                     RepositoryState.CONNECTED -> {
                         if (viewModel.isLoading.get() == true) {

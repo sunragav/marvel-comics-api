@@ -39,9 +39,7 @@ class RemoteModule {
     @Provides
     @PrivateKey
     fun providePrivateKey() = BuildConfig.PRIVATE_KEY
-    @Provides
-    @Singleton
-    fun provideComicsRemoteMapper() = ComicsRemoteMapper()
+
 
     @Provides
     @Singleton
