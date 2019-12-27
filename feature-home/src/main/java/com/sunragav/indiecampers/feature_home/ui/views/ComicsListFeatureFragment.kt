@@ -21,7 +21,7 @@ import com.sunragav.indiecampers.feature_home.databinding.FragmentComicsListFeat
 import com.sunragav.indiecampers.feature_home.ui.mapper.ComicsUIEntityMapper
 import com.sunragav.indiecampers.feature_home.ui.recyclerview.adapters.ComicsPagedListAdapter
 import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
-import com.sunragav.indiecampers.home.domain.entities.NetworkState
+import com.sunragav.indiecampers.home.domain.entities.RepositoryState
 import com.sunragav.indiecampers.home.domain.entities.RepositoryStateRelay
 import com.sunragav.indiecampers.home.presentation.factory.ComicsViewModelFactory
 import com.sunragav.indiecampers.home.presentation.viewmodels.HomeVM
@@ -101,23 +101,23 @@ class ComicsListFeatureFragment : Fragment() {
         val subscription =
             repositoryStateRelay.relay.subscribe {
                 when (it) {
-                    NetworkState.LOADING -> viewModel.isLoading.set(true)
-                    NetworkState.LOADED -> {
+                    RepositoryState.LOADING -> viewModel.isLoading.set(true)
+                    RepositoryState.LOADED -> {
                         viewModel.isLoading.set(false)
                     }
-                    NetworkState.DISCONNECTED -> {
+                    RepositoryState.DISCONNECTED -> {
                         Toast.makeText(
                             activity,
                             R.string.network_lost,
                             Toast.LENGTH_LONG
                         )
                     }
-                    NetworkState.CONNECTED -> {
+                    RepositoryState.CONNECTED -> {
                         if (viewModel.isLoading.get() == true) {
                             viewModel.search(query)
                         }
                     }
-                    NetworkState.ERROR -> {
+                    RepositoryState.ERROR -> {
                         viewModel.isLoading.set(false)
                         Toast.makeText(
                             activity,
@@ -126,7 +126,7 @@ class ComicsListFeatureFragment : Fragment() {
                         )
                             .show()
                     }
-                    NetworkState.EMPTY -> {
+                    RepositoryState.EMPTY -> {
                         viewModel.search(query)
                     }
                 }
@@ -166,7 +166,7 @@ class ComicsListFeatureFragment : Fragment() {
         } else {
             binding.emptyList.visibility = View.GONE
             binding.rvComicsList.visibility = View.VISIBLE
-            repositoryStateRelay.relay.accept(NetworkState.DB_LOADED)
+            repositoryStateRelay.relay.accept(RepositoryState.DB_LOADED)
         }
     }
 

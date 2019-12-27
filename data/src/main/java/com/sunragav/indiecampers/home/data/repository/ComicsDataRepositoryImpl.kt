@@ -2,7 +2,7 @@ package com.sunragav.indiecampers.home.data.repository
 
 import androidx.paging.PagedList
 import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
-import com.sunragav.indiecampers.home.domain.entities.NetworkState
+import com.sunragav.indiecampers.home.domain.entities.RepositoryState
 import com.sunragav.indiecampers.home.domain.entities.RepositoryStateRelay
 import com.sunragav.indiecampers.home.domain.qualifiers.Background
 import com.sunragav.indiecampers.home.domain.qualifiers.Foreground
@@ -52,7 +52,7 @@ class ComicsDataRepositoryImpl @Inject constructor(
             if (isRequestInProgress) {
                 return
             }
-            repositoryStateRelay.relay.accept(NetworkState.LOADING)
+            repositoryStateRelay.relay.accept(RepositoryState.LOADING)
             println("Requesting page$lastRequestedPage")
             isRequestInProgress = true
             disposable.add(
@@ -67,24 +67,10 @@ class ComicsDataRepositoryImpl @Inject constructor(
                     .subscribe(
                         { comicsList ->
                             println("Loaded page$lastRequestedPage offset:${lastRequestedPage * query.limit}")
-                            localRepository.insert(comicsList)
-                                .subscribeOn(backgroundScheduler)
-                                .observeOn(backgroundScheduler)
-                                .subscribe {
-                                    lastRequestedPage++
-                                    isRequestInProgress = false
-                                    Observable.fromCallable {
-                                        repositoryStateRelay.relay.accept(NetworkState.LOADED)
-                                    }.subscribeOn(foregroundScheduler)
-                                        .retry(1)
-                                        .subscribe()
-                                }
+                            updateDB(comicsList)
                         },
                         { error ->
-                            Observable.fromCallable {
-                                repositoryStateRelay.relay.accept(NetworkState.error(error.localizedMessage))
-                            }.doOnSubscribe { disposable.add(it) }.subscribeOn(foregroundScheduler)
-                                .subscribe()
+                            reportRepoState(RepositoryState.error(error.localizedMessage))
                             isRequestInProgress = false
                         })
             )
@@ -95,20 +81,22 @@ class ComicsDataRepositoryImpl @Inject constructor(
             localRepository.insert(comicsList)
                 .subscribeOn(backgroundScheduler)
                 .observeOn(backgroundScheduler)
-                .doOnSubscribe{disposable.add(it)}
+                .doOnSubscribe { disposable.add(it) }
                 .andThen {
                     lastRequestedPage++
                     isRequestInProgress = false
-                    Observable.fromCallable {
-                        repositoryStateRelay.relay.accept(NetworkState.LOADED)
-                    }.doOnSubscribe { disposable.add(it) }
-                        .subscribeOn(foregroundScheduler)
-                        .retry(1)
-                        .subscribe()
+                    reportRepoState(RepositoryState.LOADED)
                 }
-                .doOnError{
-                    repositoryStateRelay.relay.accept(NetworkState.error(it.localizedMessage))
+                .doOnError {
+                    reportRepoState(RepositoryState.DB_ERROR)
                 }.subscribe()
+        }
+
+        private fun reportRepoState(repositoryState: RepositoryState) {
+            Observable.fromCallable {
+                repositoryStateRelay.relay.accept(repositoryState)
+            }.doOnSubscribe { disposable.add(it) }.subscribeOn(foregroundScheduler)
+                .subscribe()
         }
     }
 }

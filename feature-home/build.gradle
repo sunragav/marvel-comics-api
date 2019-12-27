@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
-
+apply plugin: "androidx.navigation.safeargs.kotlin"
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     packagingOptions {
@@ -43,7 +43,7 @@ android {
 
         implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
         implementation 'androidx.appcompat:appcompat:1.1.0'
-        implementation "com.google.android.material:material:1.2.0-alpha02"
+        implementation "com.google.android.material:material:1.2.0-alpha03"
 
         implementation 'androidx.core:core-ktx:1.1.0'
         implementation 'androidx.constraintlayout:constraintlayout:1.1.3'

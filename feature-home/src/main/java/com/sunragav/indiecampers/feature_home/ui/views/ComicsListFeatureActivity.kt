@@ -10,7 +10,7 @@ import com.bumptech.glide.MemoryCategory
 import com.sunragav.indiecampers.android_utils.ConnectivityMonitorLiveData
 import com.sunragav.indiecampers.feature_home.R
 import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
-import com.sunragav.indiecampers.home.domain.entities.NetworkState
+import com.sunragav.indiecampers.home.domain.entities.RepositoryState
 import com.sunragav.indiecampers.home.domain.entities.RepositoryStateRelay
 import com.sunragav.indiecampers.home.presentation.factory.ComicsViewModelFactory
 import com.sunragav.indiecampers.home.presentation.viewmodels.HomeVM
@@ -39,7 +39,7 @@ class ComicsListFeatureActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
-        repositoryStateRelay.relay.accept(NetworkState.EMPTY)
+        repositoryStateRelay.relay.accept(RepositoryState.EMPTY)
         connectivityState.observe(this, Observer {
             if (it == true) connected() else disconnected()
         })
@@ -54,13 +54,11 @@ class ComicsListFeatureActivity : AppCompatActivity() {
             isTablet -> {
                 setContentView(R.layout.content_comics_list_feature_land)
                 val navHostFragment = navFragment as NavHostFragment
-                if (viewModel.currentComics.value?.id == "default")
-                    navHostFragment.navController.navigate(R.id.emptyFragment)
-
                 viewModel.currentComics.observe(this, Observer<ComicsEntity> {
                     if (it.id != "default" && alreadyNavigatedToComicsDetailFragment.not()) {
                         alreadyNavigatedToComicsDetailFragment = true
-                        navHostFragment.navController.navigate(R.id.comicsDetailFragment)
+                        val action = EmptyFragmentDirections.actionEmptyFragmentToComicsDetailFragment()
+                        navHostFragment.navController.navigate(action)
                     }
                 })
 
@@ -74,23 +72,17 @@ class ComicsListFeatureActivity : AppCompatActivity() {
 
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-        if (isTablet)
-            finish()
-    }
-
     override fun onDestroy() {
         viewModel.currentComics.removeObservers(this)
         super.onDestroy()
     }
 
     private fun connected() {
-        repositoryStateRelay.relay.accept(NetworkState.CONNECTED)
+        repositoryStateRelay.relay.accept(RepositoryState.CONNECTED)
 
     }
 
     private fun disconnected() {
-        repositoryStateRelay.relay.accept(NetworkState.DISCONNECTED)
+        repositoryStateRelay.relay.accept(RepositoryState.DISCONNECTED)
     }
 }

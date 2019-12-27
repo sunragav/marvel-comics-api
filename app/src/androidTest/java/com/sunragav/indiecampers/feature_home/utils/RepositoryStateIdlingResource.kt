@@ -1,7 +1,7 @@
 package com.sunragav.indiecampers.feature_home.utils
 
 import androidx.test.espresso.IdlingResource
-import com.sunragav.indiecampers.home.domain.entities.NetworkState
+import com.sunragav.indiecampers.home.domain.entities.RepositoryState
 import com.sunragav.indiecampers.home.domain.entities.RepositoryStateRelay
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -26,7 +26,7 @@ class RepositoryStateIdlingResource (private val repositoryStateRelay: Repositor
         resourceCallback = callback
         isIdle.getAndSet(false)
         compositeDisposable.add(repositoryStateRelay.relay.observeOn(AndroidSchedulers.mainThread()).subscribe {
-            if (it == NetworkState.DB_LOADED) {
+            if (it == RepositoryState.DB_LOADED) {
                 resourceCallback.onTransitionToIdle()
                 isIdle.getAndSet(true)
             }

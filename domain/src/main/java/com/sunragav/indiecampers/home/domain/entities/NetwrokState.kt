@@ -4,7 +4,7 @@ import com.jakewharton.rxrelay2.BehaviorRelay
 import javax.inject.Inject
 import javax.inject.Singleton
 
-data class NetworkState(
+data class RepositoryState(
     val status: Status,
     val msg: String? = null
 ) {
@@ -22,19 +22,19 @@ data class NetworkState(
 
     companion object {
 
-        val EMPTY = NetworkState(Status.SUCCESS_EMPTY) // New
-        val LOADED = NetworkState(Status.SUCCESS_LOADED) // New
-        val LOADING = NetworkState(Status.RUNNING)
-        val ERROR = NetworkState(Status.FAILED)
-        val DB_ERROR = NetworkState(Status.DB_ERROR)
-        val DB_LOADED = NetworkState(Status.DB_LOADED)
-        val CONNECTED = NetworkState(Status.CONNECTED)
-        val DISCONNECTED = NetworkState(Status.DISCONNECTED)
-        fun error(msg: String?) = NetworkState(Status.FAILED, msg)
+        val EMPTY = RepositoryState(Status.SUCCESS_EMPTY) // New
+        val LOADED = RepositoryState(Status.SUCCESS_LOADED) // New
+        val LOADING = RepositoryState(Status.RUNNING)
+        val ERROR = RepositoryState(Status.FAILED)
+        val DB_ERROR = RepositoryState(Status.DB_ERROR)
+        val DB_LOADED = RepositoryState(Status.DB_LOADED)
+        val CONNECTED = RepositoryState(Status.CONNECTED)
+        val DISCONNECTED = RepositoryState(Status.DISCONNECTED)
+        fun error(msg: String?) = RepositoryState(Status.FAILED, msg)
     }
 }
 
 @Singleton
 class RepositoryStateRelay @Inject constructor() {
-    val relay: BehaviorRelay<NetworkState> = BehaviorRelay.create()
+    val relay: BehaviorRelay<RepositoryState> = BehaviorRelay.create()
 }

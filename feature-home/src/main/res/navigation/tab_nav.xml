@@ -10,10 +10,10 @@
         app:popUpToInclusive="true"
         android:label="EmptyFragment" >
         <action
-            android:id="@+id/action_emptyFragment_pop"
-            app:destination="@+id/tab_nav"
-            app:launchSingleTop="true"
-            app:popUpTo="@+id/tab_nav"
+            android:id="@+id/action_emptyFragment_to_comicsDetailFragment"
+            app:destination="@id/comicsDetailFragment"
+            app:launchSingleTop="false"
+            app:popUpTo="@+id/emptyFragment"
             app:popUpToInclusive="true" />
     </fragment>
     <fragment
@@ -24,17 +24,10 @@
         app:popUpToInclusive="true"
         android:label="ComicsDetailFragment" >
         <action
-            android:id="@+id/action_comicsDetailFragment_pop"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popUpTo="@id/comicsDetailFragment"
-            app:popUpToInclusive="true"
-            app:popExitAnim="@anim/nav_default_exit_anim"
-            app:launchSingleTop="true" />
-        <action
-            android:id="@+id/action_comicsDetailFragment_pop2"
-            app:destination="@+id/tab_nav"
-            app:launchSingleTop="true"
-            app:popUpTo="@+id/tab_nav"
+            android:id="@+id/action_comicsDetailFragment_to_tab_nav"
+            app:destination="@id/tab_nav"
+            app:launchSingleTop="false"
+            app:popUpTo="@id/tab_nav"
             app:popUpToInclusive="true" />
     </fragment>
 </navigation>
