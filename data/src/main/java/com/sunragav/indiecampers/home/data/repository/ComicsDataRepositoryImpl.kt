@@ -9,6 +9,7 @@ import com.sunragav.indiecampers.home.domain.qualifiers.Foreground
 import com.sunragav.indiecampers.home.domain.repositories.ComicsDataRepository
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction.GetComicsListActionResult
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.disposables.CompositeDisposable
@@ -31,6 +32,10 @@ class ComicsDataRepositoryImpl @Inject constructor(
             localRepository.getComicsListDatasourceFactory(query),
             ComicsListBoundaryCallback(query)
         )
+    }
+
+    override fun clean() {
+        disposable.dispose()
     }
 
     inner class ComicsListBoundaryCallback(

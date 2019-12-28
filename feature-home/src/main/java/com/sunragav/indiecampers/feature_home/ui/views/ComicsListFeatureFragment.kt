@@ -22,6 +22,12 @@ import com.sunragav.indiecampers.feature_home.ui.mapper.ComicsUIEntityMapper
 import com.sunragav.indiecampers.feature_home.ui.recyclerview.adapters.ComicsPagedListAdapter
 import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
 import com.sunragav.indiecampers.home.domain.entities.RepositoryState
+import com.sunragav.indiecampers.home.domain.entities.RepositoryState.Companion.CONNECTED
+import com.sunragav.indiecampers.home.domain.entities.RepositoryState.Companion.DISCONNECTED
+import com.sunragav.indiecampers.home.domain.entities.RepositoryState.Companion.EMPTY
+import com.sunragav.indiecampers.home.domain.entities.RepositoryState.Companion.ERROR
+import com.sunragav.indiecampers.home.domain.entities.RepositoryState.Companion.LOADED
+import com.sunragav.indiecampers.home.domain.entities.RepositoryState.Companion.LOADING
 import com.sunragav.indiecampers.home.domain.entities.RepositoryStateRelay
 import com.sunragav.indiecampers.home.presentation.factory.ComicsViewModelFactory
 import com.sunragav.indiecampers.home.presentation.viewmodels.HomeVM
@@ -31,6 +37,7 @@ import javax.inject.Inject
 
 
 class ComicsListFeatureFragment : Fragment() {
+    private var prevState: RepositoryState = EMPTY
     private lateinit var binding: FragmentComicsListFeatureBinding
     private lateinit var viewModel: HomeVM
     @Inject
@@ -101,23 +108,24 @@ class ComicsListFeatureFragment : Fragment() {
         val subscription =
             repositoryStateRelay.relay.subscribe {
                 when (it) {
-                    RepositoryState.LOADING -> viewModel.isLoading.set(true)
-                    RepositoryState.LOADED -> {
+                    LOADING -> viewModel.isLoading.set(true)
+                    LOADED -> {
                         viewModel.isLoading.set(false)
                     }
-                    RepositoryState.DISCONNECTED -> {
-                        Toast.makeText(
+                    DISCONNECTED -> {
+                        viewModel.isLoading.set(false)
+                            Toast.makeText(
                             activity,
                             R.string.network_lost,
                             Toast.LENGTH_LONG
                         ).show()
                     }
-                    RepositoryState.CONNECTED -> {
-                        if (viewModel.isLoading.get() == true) {
+                    CONNECTED -> {
+                        if (prevState == DISCONNECTED) {
                             viewModel.search(query)
                         }
                     }
-                    RepositoryState.ERROR -> {
+                    ERROR -> {
                         viewModel.isLoading.set(false)
                         Toast.makeText(
                             activity,
@@ -126,10 +134,11 @@ class ComicsListFeatureFragment : Fragment() {
                         )
                             .show()
                     }
-                    RepositoryState.EMPTY -> {
+                    EMPTY -> {
                         viewModel.search(query)
                     }
                 }
+                prevState = it
             }
         subscription?.let { disposable.add(it) }
     }

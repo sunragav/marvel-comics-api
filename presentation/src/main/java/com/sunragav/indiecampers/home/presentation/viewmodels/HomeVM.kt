@@ -6,6 +6,7 @@ import androidx.lifecycle.*
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import com.sunragav.indiecampers.home.domain.entities.ComicsEntity
+import com.sunragav.indiecampers.home.domain.usecases.CleanAction
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction
 import com.sunragav.indiecampers.home.domain.usecases.GetComicsListAction.Params
 import kotlinx.coroutines.*
@@ -13,7 +14,8 @@ import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
 open class HomeVM @Inject internal constructor(
-    private val getComicsListAction: GetComicsListAction
+    private val getComicsListAction: GetComicsListAction,
+    private val cleanAction: CleanAction
 ) : ViewModel(), CoroutineScope {
     companion object {
         private const val LIMIT = 20
@@ -79,5 +81,9 @@ open class HomeVM @Inject internal constructor(
             flagged = false
         )
         filterRequestLiveData.postValue(filterRequest)
+    }
+
+    override fun onCleared() {
+        cleanAction.execute()
     }
 }
