@@ -7,6 +7,14 @@ apply plugin: 'kotlin-kapt'
 
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('..\\marvel.jks')
+            storePassword 'marvel'
+            keyAlias = 'marvel'
+            keyPassword 'marvel'
+        }
+    }
     compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
         applicationId "com.sunragav.indiecampers.marvelcomics"
@@ -15,13 +23,16 @@ android {
         versionCode rootProject.ext.appVersionCode
         versionName rootProject.ext.appVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
     }
     dataBinding{
         enabled=true
     }
+
     buildTypes {
 
         debug{
+
             buildConfigField('String', 'APP_NAME', "\"${project.name}\"")
             buildConfigField("String", "PUBLIC_KEY", "\"${marvelPublicKey}\"")
             buildConfigField("String", "PRIVATE_KEY", "\"${marvelPrivateKey}\"")
@@ -34,8 +45,12 @@ android {
             buildConfigField("String", "PRIVATE_KEY", "\"${marvelPrivateKey}\"")
             buildConfigField("String", "BASE_URL", "\"${baseUrl}\"")
 
-            minifyEnabled false
+            shrinkResources true
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            versionNameSuffix = '1.0'
+            signingConfig signingConfigs.release
+
         }
     }
 }
@@ -102,7 +117,7 @@ dependencies {
     implementation "com.jakewharton.rxrelay2:rxrelay:$rxRelayVersion"
 
 
-    testImplementation 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.13'
     androidTestImplementation "org.mockito:mockito-core:$mockitoVersion"
     androidTestImplementation "androidx.test:runner:$testRunnerVersion"
     androidTestImplementation "androidx.test:rules:$testRulesVersion"
