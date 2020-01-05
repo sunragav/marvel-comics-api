@@ -3,33 +3,35 @@ The app displays a list of comics by consuming the marvel api. On clicking any l
 The list view has a EditText inside a TextInputLayout from material design which makes it stay on top while the list is scrolled.
 This EditText is used for searching the comics by title name.
 
-The project was develped and tested using Android studio 3.5.3.  
+## The project was develped and tested using Android studio 3.5.3.  
 It uses code generation libraries like Dagger2, Databinding, Room. So please kindly gradle-sync the project first and build it once. 
 Else you might find unknown symbol references in the code base. If required, "invalidate caches and restart" using the 'File' menu option in the Android studio.
 
-The project features:
-Kotlin
-Rxjava2
-RxRelay
-Dagger2 (Dependency injection)
-Coroutines (extension)
-Glide (Image library)
-Navigation (Android architecture component from jetpak)
-DataBinding (Android architecture component from jetpak)
-ViewModel (Android architecture component from jetpak)
-LiveDate (Android architecture component from jetpak)
-PagedList (Android architecture component from jetpak)
-Room (SQLite backed DB for persistence and the automatic PagedList DataSource support using paging library's BoundaryCallback)
-Retrofit2 (For service calls)
-okHttp (For Network layer, intercepting http logs and intercepting to add apiKey to query parameters for every service call, we make)
-Espresso (AndroidJUnit4ClassRunner for UITests)
-JUnit4 (For unit tests)
-Instrumentation tests for the RoomDB Dao classes
-Automatic Master-detail layout switching for tablets and large screen devices
+## The project features:
+- [x] Kotlin
+- [x] Rxjava2
+- [x] RxRelay
+- [x] Dagger2 (Dependency injection)
+- [x] Coroutines (extension)
+- [x] Glide (Image library)
+- [x] Navigation (Android architecture component from jetpak)
+- [x] DataBinding (Android architecture component from jetpak)
+- [x] ViewModel (Android architecture component from jetpak)
+- [x] LiveDate (Android architecture component from jetpak)
+- [x] PagedList (Android architecture component from jetpak)
+- [x] Room (SQLite backed DB for persistence and the automatic PagedList DataSource support using paging library's BoundaryCallback)
+- [x] Retrofit2 (For service calls)
+- [x] okHttp (For Network layer, intercepting http logs and intercepting to add apiKey to query parameters for every service call, we make)
+- [x] Espresso (AndroidJUnit4ClassRunner for UITests)
+- [x] JUnit4 (For unit tests)
+- [x] Instrumentation tests for the RoomDB Dao classes
+- [x] Automatic Master-detail layout switching for tablets and large screen devices
 
-The project uses the famous uncle Bob's CLEAN architecture.
 
-The project has been split into 9 modules, listed below from top-down order according to the application flow:
+
+## The project uses the famous uncle Bob's CLEAN architecture.
+
+## The project has been split into 9 modules, listed below from top-down order according to the application flow:
 
 1. app  -  Android app module which has a SplashActivity and the UI tests (espresso) and the necessary,
 	It is the module which has application class and provides the dependency injection for all the other modules using Dagger2.
@@ -109,14 +111,14 @@ The relay is basically pushed from 2 places:
 1. ComicsListFeatureActivity - sets the initial state to EMPTY and then pushes the CONNECTED/ DISCONNECTED state based on the connection availability.
 2. ComicsListBoundaryCallback - sets the LOADING/LOADED/ERROR state based on the service API call status. 
 
-The following are the android modules:
+## The following are the android modules:
 app  (includes the UI test for the feature module and dagger dependency injection modules and the application component)
 feature-home (contains the UI for the feature)
 presentation (contains the viewmodel. It has the unit test for the comicsListSource livedata that emits the pagelist of the comics entities)
 android-utils (contains the connetivity state change helper)
 localdata ( contains the roomdb. It has both instrumentation test and the unit tests)
 
-The following are the kotlin library modules:
+## The following are the kotlin library modules:
 domain (contains the usecases. It has the unit tests covering all the use cases)
 local ( It is an implentation of the repository pattern. It supplies data to the domain with out revealing the source of the data. It has unit tests.)
 remotedata ( It is the service layer implemented using the retrofit and okhttp library. 
@@ -129,7 +131,7 @@ The versions of all the external libraries used are maintained in the versions.g
 So we can fiddle with the various library versions, and also the minSdk, targetSdk and compileSdk versions easily.
 
 
-The application code flow:
+## The application code flow:
 The app starts with a splash activity in the 'app' module  and after a delay launches the ComicsListFeatureActivity in the 'feature' module. 
 The ComicsListFeatureActivity sets the domain level network state to EMPTY via the NetworkStateRelay which got injected via Dagger from the 'domain' module.
 The activity then sets listeners to the connectivity changes to communicate to the other systems via the NetworkStateRelay.
@@ -162,6 +164,45 @@ ComicsDataBindingModel class which is the binding responsible for loading the da
 The onClick listener first updates the currentComics livedata in the viewmodel.
 The onClick uses the navigation component to perform the navigation in the single fragment layout. If it is a tablet there is no navigation performed.
 The ComicsDetailFragment observes for changes to the currentComics livedata from the viewmodel. So it updates it's view using the data binding.
+
+# NOTE: THE RELEASE SIGNING KEY HAS BEEN ADDED JUST FOR THE SAKE OF COMPLETION AND DEMONSTRATION. BECAUSE PROGAURD RULES ARE APPLIED ONLY ON THE RELEASE FLAVOR. THE SIGNING KEY SHOULD BE HIDDEN AND KEPT SECRET FROM OTHERS IN A SECURED PLACE AND ACCESSED VIA CI/CD PROCESS.
+
+## Progaurd custom keep rules
+
+```
+-keep class com.sunragav.indiecampers.remotedata.models.Comic { <fields>; }
+-keep class com.sunragav.indiecampers.remotedata.models.DataContainer { <fields>; }
+-keep class com.sunragav.indiecampers.remotedata.models.DataWrapper { <fields>; }
+-keep class com.sunragav.indiecampers.remotedata.models.Image { <fields>; }
+-keepnames class com.sunragav.indiecampers.localdata.models.ComicsLocal { <fields>; }
+
+-keep class * extends androidx.room.RoomDatabase
+-dontwarn androidx.room.paging.**
+```
+
+## The keep rules are respected by the progaurd and the below image shows how the localdata and remotedata module's POJO models are retained without obfuscation:
+
+![Progaurd keep rules](https://i.imgur.com/PxrwcC2.jpg)
+
+
+## The app without optimizations ( shrinking and progaurd rules) APK size is 4.6 MB and the download size is 4.1 MB
+
+![Without optimizations](https://i.imgur.com/su1RKld.jpg)
+
+## The app after the applicaton of necessary progaurd rules the APK size is 2 MB and the download size is 1.5 MB
+
+![After optimizations](https://i.imgur.com/nmBboud.jpg)
+
+## The size comparison between un-optimized and optimized apk
+
+![size comparison](https://i.imgur.com/n7jxAT9.jpg)
+
+
+
+By the way, because I have used Android studio 3.5.3 for the development,  the shrinking+obfuscation using progaurd rules are directly done using the R8 compiler to output the dex. There is no intermediate optimized java byte code generated like it was previously when using D8 compiler.
+
+![R8](https://i.imgur.com/gaW51ac.jpg)
+
 
 
 
