@@ -3,6 +3,10 @@ The app displays a list of comics by consuming the marvel api. On clicking any l
 The list view has a EditText inside a TextInputLayout from material design which makes it stay on top while the list is scrolled.
 This EditText is used for searching the comics by title name.
 
+![img](https://i.imgur.com/F8NGLy0.gif)
+
+![img](https://i.imgur.com/WB8BluO.gif)
+
 ## The project was develped and tested using Android studio 3.5.3.  
 It uses code generation libraries like Dagger2, Databinding, Room. So please kindly gradle-sync the project first and build it once. 
 Else you might find unknown symbol references in the code base. If required, "invalidate caches and restart" using the 'File' menu option in the Android studio.
